@@ -1,4 +1,4 @@
-import { useState, FormEvent} from 'react';
+import { useState, FormEvent, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom'
 
 
@@ -13,23 +13,25 @@ export function Home() {
 
   const navigate = useNavigate();
 
-  const { signIn } = useAuth();
+  const { signIn, token } = useAuth();
+
+  useEffect(()=>{
+    if(token) {
+      navigate('/');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[token])
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-
-  function navigateDashboard() {
-    
-    navigate('/');
-  }
 
   async function handleSignIn(e: FormEvent) {
     e.preventDefault();
     const passLogin = await signIn(username, password);
     
     if(passLogin) {
-      navigateDashboard()
+      navigate('/');
     }
     
   }

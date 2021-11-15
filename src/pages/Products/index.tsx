@@ -1,11 +1,11 @@
 import './styles.scss';
 
-export function Customers() {
+export function Products() {
 
   return (
     <div>
       <h2 className="page-header">
-        customers
+        Products
       </h2>
     </div>
   )

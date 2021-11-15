@@ -1,5 +1,4 @@
 import { MutableRefObject, ReactElement, useRef } from 'react'
-import { JsxElement } from 'typescript'
 import { useAuth } from '../../hooks/auth'
 
 import './styles.scss'
