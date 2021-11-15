@@ -1,11 +1,7 @@
-import {SetStateAction, Key, useState} from 'react'
+import {Key, useState} from 'react'
 
 import './styles.scss'
 
-type Props = {
-    limit: any, 
-    bodyData: any,
-}
 
 export function Table(props: any) {
 
