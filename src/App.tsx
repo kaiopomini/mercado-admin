@@ -1,16 +1,23 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { Dashboard } from './pages/Dashboard';
 
+import { AuthProvider } from './hooks/auth';
+
+import { Layout } from './components/Layout';
+import { Customers } from './pages/Customers';
+import { Dashboard } from './pages/Dashboard';
 import { Home } from "./pages/Home";
+import AppRoutes from './components/AppRoutes';
 
 function App() {
+
+  
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/"  element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
