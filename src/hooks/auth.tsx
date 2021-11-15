@@ -2,11 +2,12 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { api } from '../services/api';
 import useStorage from '../utils/useStorage';
 
-type User = {
+export type User = {
   id: number;
   name: string;
   surname: string;
   email: string;
+  avatar:string;
   roles: any[];
   permissions: any[];
 };

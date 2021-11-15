@@ -1,7 +1,7 @@
-import { useEffect, useState, FormEvent} from 'react';
+import { useState, FormEvent} from 'react';
 import { useNavigate } from 'react-router-dom'
 
-import logoAdmin from '../../assets/img/logo-admin.png';
+
 import logoBlue from '../../assets/img/logo-blue.png';
 import logoYellow from '../../assets/img/logo-yellow.png';
 import { useAuth } from '../../hooks/auth';
@@ -13,7 +13,7 @@ export function Home() {
 
   const navigate = useNavigate();
 
-  const {signIn, user } = useAuth();
+  const { signIn } = useAuth();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
