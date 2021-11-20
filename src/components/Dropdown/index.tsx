@@ -1,4 +1,4 @@
-import { MutableRefObject, ReactElement, useRef } from 'react'
+import { MutableRefObject, ReactElement, ReactNode, useRef } from 'react'
 import { useAuth } from '../../hooks/auth'
 
 import './styles.scss'
@@ -8,7 +8,7 @@ type Props = {
     renderFooter?: () => ReactElement<any, any>;
     renderItems: (item: Object, index: number) => ReactElement<any, any>;
     contentData: Object[];
-    icon?: string;
+    icon?: ReactNode;
     badge?: string;
     logOut?: boolean;
 }
@@ -39,7 +39,7 @@ export function Dropdown(props: Props) {
         <div className='dropdown'>
             <button ref={dropdown_toggle_el} className="dropdown__toggle">
                 {
-                    props.icon ? <i className={props.icon}></i> : ''
+                    props.icon ? props.icon : ''
                 }
                 {
                     props.badge ? <span className='dropdown__toggle-badge'>{props.badge}</span> : ''

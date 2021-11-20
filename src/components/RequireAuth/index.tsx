@@ -9,7 +9,7 @@ type Props = {
 
 export function RequireAuth({ children, roles }: Props) {
 
-  const { token, user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const userRoles = user?.roles?.map(role => role.name)
   let hasRole = false;
   roles?.length && roles?.forEach((role => {
@@ -21,7 +21,7 @@ export function RequireAuth({ children, roles }: Props) {
 
   const location = useLocation();
 
-  if (!token) {
+  if (!isAuthenticated()) {
     // Redirect them to the /login page, but save the current location they were
     // trying to go to when they were redirected. This allows us to send them
     // along to that page after they login, which is a nicer user experience

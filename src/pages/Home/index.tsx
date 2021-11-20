@@ -13,14 +13,14 @@ export function Home() {
 
   const navigate = useNavigate();
 
-  const { signIn, token } = useAuth();
+  const { signIn, isAuthenticated} = useAuth();
 
   useEffect(()=>{
-    if(token) {
+    if(isAuthenticated()) {
       navigate('/');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[token])
+  },[isAuthenticated()])
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

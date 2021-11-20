@@ -11,7 +11,10 @@ export function Layout() {
         <div className={'layout'}>
             <Sidebar />
             <div className="layout__content">
-                <TopNav />
+                <div className="layout__navbar">
+                    <TopNav />
+                </div>
+
                 <div className="layout__content-main">
                     <Outlet />
                 </div>

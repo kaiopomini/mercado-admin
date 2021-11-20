@@ -1,13 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { api } from '../services/api';
-import useStorage from '../utils/useStorage';
+import { login, logout, signIn as signInService, isAuthenticated as isAuthenticatedService } from '../services/authService';
+
 
 export type User = {
   id: number;
   name: string;
   surname: string;
   email: string;
-  avatar:string;
+  avatar: string;
   roles: any[];
   permissions: any[];
 };
@@ -17,7 +18,7 @@ interface AuthContextData {
   user: User | undefined;
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
-  token: void | ((newValue: any) => void);
+  isAuthenticated: () => boolean;
 };
 
 type AuthProviderProps = {
@@ -28,29 +29,37 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
 
-  const [token, setToken, removeToken] = useStorage('token');
-  const [user, setUser, removeUser] = useStorage('user');
+  const [user, setUser] = useState({} as User);
 
   const [loading, setLoading] = useState(false);
-  
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      validadeLogin()
+
+    } else {
+      signOut()
+    }
+  }, [])
+
+  async function validadeLogin(){
+    const dataUser = (await api.get('me')).data;
+    if (dataUser.success) {
+      setUser({
+        ...dataUser.payload,
+      } as User);
+      return true;
+    }
+  }
 
   async function signIn(email: string, password: string): Promise<boolean> {
     try {
       setLoading(true);
-      const { data } = await api.post('auth', {
-        email: email,
-        password: password,
-      });
-      const { success } = data;
-      if (success) {
-        await setToken(data.payload);
-        api.defaults.headers.common.Authorization = `Bearer ${data.payload}`;
-        const { payload }  = (await api.get('me')).data;
-        
-        setUser({
-          ...payload,
-        } as User);
-        return true;
+
+      const token = await signInService(email, password)
+
+      if (token) {
+        login(token)
       }
       return false
     } catch (error) {
@@ -62,14 +71,18 @@ function AuthProvider({ children }: AuthProviderProps) {
   }
 
   async function signOut() {
-    await removeUser();
+
     api.defaults.headers.common.Authoization = '';
-    await removeToken()
-    
+    logout()
+
+  }
+
+  function isAuthenticated() {
+    return (isAuthenticatedService())
   }
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, loading, token }}>
+    <AuthContext.Provider value={{ user, signIn, signOut, loading, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

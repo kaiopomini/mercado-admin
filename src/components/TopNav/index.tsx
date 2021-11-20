@@ -2,16 +2,16 @@ import './styles.scss';
 
 import { Link } from 'react-router-dom'
 
-
 import notifications from '../../assets/JsonData/notification.json'
 
 import user_image from '../../assets/img/logo-admin.png'
 
+import { NotificationsNone } from "@material-ui/icons";
+
 import user_menu from '../../assets/JsonData/user_menus.json'
 import { Dropdown } from '../Dropdown';
 import { useAuth, User } from '../../hooks/auth';
-
-
+import { ReactNode } from 'react';
 
 
 type renderItemProps = {
@@ -54,14 +54,24 @@ export function TopNav() {
 
     const { user } = useAuth();
 
-  
+
   return (
     <div className='topnav'>
             <div className="topnav__search">
-                <input type="text" placeholder='Search here...' />
-                <i className='bx bx-search'></i>
+                {/* <input type="text" placeholder='Search here...' />
+                <i className='bx bx-search'></i> */}
             </div>
             <div className="topnav__right">
+            <div className="topnav__right-item">
+                    <Dropdown
+                        icon={<NotificationsNone fontSize="large"/>}
+                        badge='12'
+                        contentData={notifications}
+                        renderItems={(item, index) => renderNotificationItem(item as renderItemProps, index)}
+                        renderFooter={() => <Link to='/'>View All</Link>}
+                    />
+                    {/* dropdown here */}
+                </div>
                 <div className="topnav__right-item">
                     {/* dropdown here */}
                     <Dropdown
@@ -71,19 +81,10 @@ export function TopNav() {
                         logOut
                     />
                 </div>
-                <div className="topnav__right-item">
-                    <Dropdown
-                        icon='bx bx-bell'
-                        badge='12'
-                        contentData={notifications}
-                        renderItems={(item, index) => renderNotificationItem(item as renderItemProps, index)}
-                        renderFooter={() => <Link to='/'>View All</Link>}
-                    />
-                    {/* dropdown here */}
-                </div>
-                <div className="topnav__right-item">
-                    {/* <ThemeMenu/> */}
-                </div>
+                
+                {/* <div className="topnav__right-item">
+                    <ThemeMenu/>
+                </div> */}
             </div>
         </div>
   );
