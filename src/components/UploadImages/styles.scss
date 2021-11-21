@@ -1,0 +1,43 @@
+#upload-image {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    
+    
+    .image-preview-container {
+        border-radius: var(--border-radius);
+        max-width: 200px;
+        max-height: 200px;
+        background-color: var(--border-radius);
+        margin: 0 auto;
+        .image-preview {
+            height: 100%;
+        }
+    }
+
+    .actions {
+        display: flex;
+        flex-direction: row;
+        padding-top: 8px;
+        align-items: center;
+        
+        label {
+            padding-right: 16px;
+        }
+    }
+
+    .info-container {
+        min-height: 44px;
+        height: 44px;
+        .upload-message {
+            font-weight: 400;
+            font-size: 12px;
+            text-align: start;
+            line-height: 1;
+        }
+        .error {
+            color: var(--main-color-red);
+        }
+    }
+}

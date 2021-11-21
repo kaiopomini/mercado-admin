@@ -1,3 +1,4 @@
+import { CircularProgress } from '@mui/material';
 import { useState, FormEvent, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom'
 
@@ -9,11 +10,11 @@ import { useAuth } from '../../hooks/auth';
 
 import './styles.scss';
 
-export function Home() {
+export function SignIn() {
 
   const navigate = useNavigate();
 
-  const { signIn, isAuthenticated} = useAuth();
+  const { signIn, isAuthenticated, loading} = useAuth();
 
   useEffect(()=>{
     if(isAuthenticated()) {
@@ -60,8 +61,8 @@ export function Home() {
               onChange={(e) => setPassword(e.target.value)}
               value={password}
             />
-            <button type="submit" >
-              Entrar
+            <button type="submit" disabled={loading}>
+              {loading ? <CircularProgress color="inherit" /> : 'Entrar'}
             </button>
           </form>
         </div>

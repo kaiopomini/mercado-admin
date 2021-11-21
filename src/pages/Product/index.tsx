@@ -6,7 +6,7 @@ import './styles.scss';
 
 export function Product() {
   return (
-    <div className="product">
+    <div id="product">
       <div className="productTitleContainer">
         <h1 className="productTitle">Product</h1>
         <Link to="/newproduct">

@@ -1,11 +1,21 @@
+import { useEffect } from "react";
 import { Outlet } from "react-router";
 import { Sidebar } from "../Sidebar";
 import { TopNav } from "../TopNav";
+
+import { useAuth } from '../../hooks/auth'
 
 
 import './styles.scss'
 
 export function Layout() {
+    const { validadeLogin } = useAuth()
+
+    useEffect(() => {
+        validadeLogin();
+        
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <div className={'layout'}>

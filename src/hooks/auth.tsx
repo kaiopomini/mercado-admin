@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { api } from '../services/api';
 import { login, logout, signIn as signInService, isAuthenticated as isAuthenticatedService } from '../services/authService';
 
@@ -19,6 +19,7 @@ interface AuthContextData {
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   isAuthenticated: () => boolean;
+  validadeLogin: () => void;
 };
 
 type AuthProviderProps = {
@@ -33,14 +34,6 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isAuthenticated()) {
-      validadeLogin()
-
-    } else {
-      signOut()
-    }
-  }, [])
 
   async function validadeLogin(){
     const dataUser = (await api.get('me')).data;
@@ -82,7 +75,7 @@ function AuthProvider({ children }: AuthProviderProps) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, loading, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, signIn, signOut, loading, isAuthenticated, validadeLogin }}>
       {children}
     </AuthContext.Provider>
   );

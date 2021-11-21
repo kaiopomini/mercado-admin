@@ -11,7 +11,6 @@ import { NotificationsNone } from "@material-ui/icons";
 import user_menu from '../../assets/JsonData/user_menus.json'
 import { Dropdown } from '../Dropdown';
 import { useAuth, User } from '../../hooks/auth';
-import { ReactNode } from 'react';
 
 
 type renderItemProps = {
@@ -31,10 +30,10 @@ const renderNotificationItem = (item: renderItemProps, index: number) => (
 const renderUserToggle = (user: User | undefined) => (
     <div className="topnav__right-user">
         <div className="topnav__right-user__image">
-            <img src={!user || user?.avatar === 'default' ?  user_image : user.avatar } alt="" />
+            <img src={user && user.avatar && user.avatar !== 'default' ?  user?.avatar : user_image } alt="imagem avatar" />
         </div>
         <div className="topnav__right-user__name">
-            {user?.name}
+            { user && user.name }
         </div>
     </div>
 )

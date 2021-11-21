@@ -39,7 +39,7 @@
     --transition-cubic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -55,9 +55,11 @@ body {
     letter-spacing: 0.7px;
 }
 
-body, input, button, textarea {
-    font: 400 16px 'Roboto', sans-serif;
-
+body,
+input,
+button,
+textarea {
+    font: 400 16px "Roboto", sans-serif;
 }
 
 a {
@@ -85,9 +87,6 @@ input {
     outline: 0;
 }
 
-input:focus {
-    border: 2px solid var(--main-color);
-}
 
 .page-header {
     margin-bottom: 40px;
@@ -156,4 +155,19 @@ input:focus {
 .orange-color {
     background-color: var(--main-color-orange);
     color: #fff;
+}
+html {
+    ::-webkit-scrollbar {
+        width: 8px; /* width of the entire scrollbar */
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent; /* color of the tracking area */
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: #ccc; /* color of the scroll thumb */
+        border-radius: 20px; /* roundness of the scroll thumb */
+    }
 }

@@ -16,10 +16,10 @@ import { Button } from "@material-ui/core";
 import { getProductList } from "../../services/products";
 import { Search, Close, Edit, Add, ArrowDropUp, ArrowDropDown } from "@material-ui/icons";
 
-import noImage from '../../assets/img/no-image-icon-23479.png'
-import noImage2 from '../../assets/img/no-image-icon-23485.png'
-import noImage3 from '../../assets/img/no-image-icon-23492.png'
-import noImage4 from '../../assets/img/no-image-icon-23494.png'
+
+import noImage from '../../assets/img/product-no-image.png'
+import { CircularProgress } from "@mui/material";
+
 
 
 interface Column {
@@ -51,13 +51,13 @@ function createData(
 
   const actions = (
     <div className="product-edit">
-      <Link to={'/product/' + id}><Edit /></Link>
+      <Link to={'/products/' + id}><Edit />Editar</Link>
     </div>
   );
 
   const product = (
     <div className="product-list-img">
-      <img src={image && image !== 'default' ? image : noImage2} alt={'imagem produto ' + name} />
+      <img src={image && image !== 'default' ? image : noImage} alt={'imagem produto ' + name} />
       <p>{name}</p>
     </div>
   )
@@ -72,8 +72,6 @@ function createData(
 
 export function Products() {
 
-
-
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState([] as any);
   const [search, setSearch] = useState('');
@@ -81,8 +79,9 @@ export function Products() {
   const [total, setTotal] = useState(10);
   const [sort, setSort] = useState('asc');
   const [hadSearch, setHadSearch] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  
+
 
   const navigate = useNavigate();
 
@@ -99,6 +98,7 @@ export function Products() {
 
 
   async function loadData(clear = false) {
+    setIsLoading(true)
     const data = clear ? await getProductList(undefined, undefined, perPage, sort) : await getProductList(search, page, perPage, sort);
     console.log('ativou')
     if (data) {
@@ -114,6 +114,7 @@ export function Products() {
 
       }
     }
+    setIsLoading(false)
     scrollToFirstRow()
   }
 
@@ -163,7 +164,7 @@ export function Products() {
   }
 
   const columns: readonly Column[] = [
-    { id: 'actions', label: 'Ações', minWidth: 60 },
+    { id: 'actions', label: 'Ações', minWidth: 100 },
     { id: 'product', label: 'Produto', minWidth: 350, icon: sort === 'asc' ? <ArrowDropDown /> : <ArrowDropUp />, action: changeSort },
     {
       id: 'price',
@@ -202,7 +203,7 @@ export function Products() {
           </div>
         </div>
         <div className="new-product">
-          <Button variant="contained" onClick={() => navigate('/product/new')}><Add />Cadastrar</Button>
+          <Button variant="contained" onClick={() => navigate('/products/new')}><Add />Cadastrar</Button>
         </div>
       </div>
       <Paper sx={{ width: '100%', overflow: 'hidden' }} >
@@ -229,25 +230,30 @@ export function Products() {
                 ))}
               </TableRow>
             </TableHead>
-            <TableBody>
-              {rows
-                .map((row: any, index: number) => {
-                  return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={row.code} id={'row' + index}>
-                      {columns.map((column) => {
-                        const value = row[column.id];
-                        return (
-                          <TableCell key={column.id} align={column.align}>
-                            {column.format && typeof value === 'number'
-                              ? column.format(value)
-                              : value}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
-            </TableBody>
+            {isLoading? <div className="loading" ><CircularProgress color="inherit"/></div>
+              :
+              <TableBody>
+                {rows
+                  .map((row: any, index: number) => {
+                    return (
+                      <TableRow hover role="checkbox" tabIndex={-1} key={row.code} id={'row' + index}>
+                        {columns.map((column) => {
+                          const value = row[column.id];
+                          return (
+                            <TableCell key={column.id} align={column.align}>
+                              {column.format && typeof value === 'number'
+                                ? column.format(value)
+                                : value}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    );
+                  })}
+              </TableBody>
+
+            }
+
           </Table>
         </TableContainer>
         <TablePagination
