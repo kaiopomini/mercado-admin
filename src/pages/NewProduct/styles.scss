@@ -2,6 +2,10 @@
     display: flex;
     flex-direction: column;
 
+    .MuiFormHelperText-root {
+        margin-top: 0px;
+    }
+
     .top-content {
         display: flex;
         flex-direction: row;
@@ -21,17 +25,19 @@
                 display: flex;
                 justify-content: space-between;
 
-                // &:nth-child(n) {
-                //     padding-bottom: 8px;
-                // }
-                // &:nth-last-child(n){
-                //     padding-bottom: 0;
-                // }
                 & > :nth-child(2) {
                     margin-left: 8px;
                 }
+                .edit {
+                    background-color: transparent;
 
-
+                    &:hover {
+                        color: var(--main-color);
+                    }
+                    &.red {
+                        color: var(--main-color-red);
+                    }
+                }
             }
         }
         .upload-image-container {
@@ -43,13 +49,15 @@
             border-radius: var(--border-radius);
             max-width: 450px;
         }
-        
     }
     .more-info-container {
         margin-top: 30px;
         display: flex;
         justify-content: flex-end;
         align-items: center;
+        .delete-button {
+            margin-right: 16px;
+        }
         button {
             width: 140px;
             height: var(--button-height);

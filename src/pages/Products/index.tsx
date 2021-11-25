@@ -16,11 +16,8 @@ import { Button } from "@material-ui/core";
 import { getProductList } from "../../services/products";
 import { Search, Close, Edit, Add, ArrowDropUp, ArrowDropDown } from "@material-ui/icons";
 
-
 import noImage from '../../assets/img/product-no-image.png'
 import { CircularProgress } from "@mui/material";
-
-
 
 interface Column {
   id: 'actions' | 'product' | 'price' | 'active' | 'code';
@@ -62,13 +59,10 @@ function createData(
     </div>
   )
 
-
   const status = active ? 'Ativo' : 'Inativo';
 
   return { actions, product, price, active: status, code };
 }
-
-
 
 export function Products() {
 
@@ -81,26 +75,17 @@ export function Products() {
   const [hadSearch, setHadSearch] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-
-
   const navigate = useNavigate();
-
-
-
 
   useEffect(() => {
     loadData()
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, perPage, sort])
-
-
-
 
   async function loadData(clear = false) {
     setIsLoading(true)
     const data = clear ? await getProductList(undefined, undefined, perPage, sort) : await getProductList(search, page, perPage, sort);
-    console.log('ativou')
+   
     if (data) {
       setTotal(data.total)
       setPage(data.page)
@@ -120,7 +105,6 @@ export function Products() {
 
   const scrollToFirstRow = () => {
     const row = document.getElementById('row0');
-    console.log(row)
     if (row) {
       row.scrollIntoView({ block: 'end', behavior: 'smooth' })
     }
@@ -188,7 +172,6 @@ export function Products() {
     },
   ];
 
-
   return (
     <div className="productList">
       <h2>Produtos</h2>
@@ -218,8 +201,6 @@ export function Products() {
                     style={{ minWidth: column.minWidth }}
                     onClick={column.action}
                     sortDirection={'asc'}
-
-
                   >
                     <div className={'table-title' + (column.action && ' action')}>
                       {column.label}
@@ -230,7 +211,7 @@ export function Products() {
                 ))}
               </TableRow>
             </TableHead>
-            {isLoading? <div className="loading" ><CircularProgress color="inherit"/></div>
+            {isLoading? <TableBody><tr><td colSpan={5} className="loading"><CircularProgress color="inherit"/></td></tr></TableBody>
               :
               <TableBody>
                 {rows
