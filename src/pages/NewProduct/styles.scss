@@ -63,4 +63,12 @@
             height: var(--button-height);
         }
     }
+
+    .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 80px 0;
+        
+    }
 }
