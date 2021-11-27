@@ -13,12 +13,10 @@ export function AppRoutes() {
         <Routes>
             <Route path='/' element={<RequireAuth ><Layout /></RequireAuth>} >
                 <Route index element={<RequireAuth ><Dashboard /></RequireAuth>} />
-                <Route path="customers" element={<RequireAuth roles={['admin']}><Customers /></RequireAuth>} />
-                <Route path="products">
+                <Route path="usuarios" element={<RequireAuth roles={['admin']}><Customers /></RequireAuth>} />
+                <Route path="produtos">
                     <Route index element={<RequireAuth roles={['admin']}><Products /></RequireAuth>} />
                     <Route path=":productId" element={<RequireAuth roles={['admin']}><NewProduct /></RequireAuth>} />
-                    <Route path="new" element={<RequireAuth roles={['admin']}><NewProduct /></RequireAuth>} />
-
                 </Route>
                 <Route path="*" element={<RequireAuth roles={['admin']}><>Não encontrando</></RequireAuth>} />
             </Route>

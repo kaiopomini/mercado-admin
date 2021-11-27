@@ -48,7 +48,7 @@ function createData(
 
   const actions = (
     <div className="product-edit">
-      <Link to={'/products/' + id}><Edit />Editar</Link>
+      <Link to={'/produtos/' + id}><Edit />Editar</Link>
     </div>
   );
 
@@ -186,7 +186,7 @@ export function Products() {
           </div>
         </div>
         <div className="new-product">
-          <Button variant="contained" onClick={() => navigate('/products/new')}><Add />Cadastrar</Button>
+          <Button variant="contained" onClick={() => navigate('/produtos/novo')}><Add />Cadastrar</Button>
         </div>
       </div>
       <Paper sx={{ width: '100%', overflow: 'hidden' }} >
