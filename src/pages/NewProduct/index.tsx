@@ -46,7 +46,6 @@ export function NewProduct() {
     const hasErrors = validateFields();
 
     if (!hasErrors) {
-      console.log("entrou");
       if (editMode && productId) {
         const res = await updateProduct(
           productId,
@@ -57,7 +56,6 @@ export function NewProduct() {
           isActive
         );
         if (res?.success) {
-          console.log("att com sucesso");
         }
       } else {
         const res = await createProduct(

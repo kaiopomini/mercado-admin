@@ -17,6 +17,7 @@ export function AppRoutes() {
                 <Route path="produtos">
                     <Route index element={<RequireAuth roles={['admin']}><Products /></RequireAuth>} />
                     <Route path=":productId" element={<RequireAuth roles={['admin']}><NewProduct /></RequireAuth>} />
+                    <Route path="novo" element={<RequireAuth roles={['admin']}><NewProduct /></RequireAuth>} />
                 </Route>
                 <Route path="*" element={<RequireAuth roles={['admin']}><>Não encontrando</></RequireAuth>} />
             </Route>
