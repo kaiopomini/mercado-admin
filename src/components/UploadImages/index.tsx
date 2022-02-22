@@ -38,8 +38,9 @@ export const UploadImages = ({ setValue, imageUrl }: Props) => {
     setProgress(0);
     try {
       const res = await uploadFile(file, (event) => {
-        setProgress(Math.round((100 * event.loaded) / event.total));
+        setProgress(Math.round((90 * event.loaded) / event.total));
       });
+      setProgress(100)
 
       setValue(res.data.payload?.url);
     } catch (error) {

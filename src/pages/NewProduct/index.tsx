@@ -86,7 +86,7 @@ export function NewProduct() {
     } else {
       const res = await createProduct(data);
       if (res?.success) {
-        navigate("/produtos");
+        // navigate("/produtos");
       }
     }
 
