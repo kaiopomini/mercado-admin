@@ -298,7 +298,7 @@ export function NewProduct() {
                 <FormControlLabel
                   control={
                     <Controller
-                      name="active"
+                      name="controlledInventory"
                       control={control}
                       render={({ field }) => (
                         <Switch
@@ -333,7 +333,7 @@ export function NewProduct() {
                 <FormControlLabel
                   control={
                     <Controller
-                      name="controlledInventory"
+                      name="active"
                       control={control}
                       render={({ field }) => (
                         <Switch
