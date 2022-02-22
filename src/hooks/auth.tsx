@@ -17,10 +17,15 @@ export type User = {
   permissions: any[];
 };
 
+export type LoginResponse = {
+  message: string;
+  success: boolean;
+};
+
 interface AuthContextData {
   loading: boolean;
   user: User;
-  signIn: (email: string, password: string) => Promise<boolean>;
+  signIn: (email: string, password: string) => Promise<LoginResponse>;
   signOut: () => Promise<void>;
   isAuthenticated: () => boolean;
   validateLogin: () => void;
@@ -53,7 +58,7 @@ function AuthProvider({ children }: AuthProviderProps) {
     return false;
   }
 
-  async function signIn(email: string, password: string): Promise<boolean> {
+  async function signIn(email: string, password: string): Promise<LoginResponse> {
     try {
       setLoading(true);
 
@@ -62,10 +67,13 @@ function AuthProvider({ children }: AuthProviderProps) {
       if (token) {
         login(token);
       }
-      return false;
-    } catch (error) {
-      console.log(error);
-      return false;
+      return {message: 'Login realizado com sucesso.', success: true};
+    } catch (error: any) {
+      const response = {
+        message: error?.response?.data || 'Não foi possível realizar o login.',
+        success: false
+      }
+      return response;
     } finally {
       setLoading(false);
     }
