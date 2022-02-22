@@ -6,8 +6,8 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { Edit } from "@material-ui/icons";
+import { useNavigate, useParams,  } from "react-router";
+import { Edit, ArrowBack } from "@material-ui/icons";
 
 import { CurrencyInput } from "../../components/CurrencyInput";
 import { UploadImages } from "../../components/UploadImages";
@@ -15,59 +15,78 @@ import {
   createProduct,
   deleteProduct,
   getProduct,
+  IProductPost,
   updateProduct,
 } from "../../services/products";
 
 import "./styles.scss";
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+export interface IIndexable {
+  [key: string]: any;
+}
 
 export function NewProduct() {
-  const [barCode, setBarCode] = useState("");
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState<any>();
-  const [description, setDescripiton] = useState<any>("");
-  const [isActive, setIsActive] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const schema = Yup.object().shape({
+    barCode: Yup.string().required("Codigo de barras é obrigatório"),
+    name: Yup.string().required("Nome é obrigatório"),
+    price: Yup.number()
+      .typeError("Informe um valor númerico")
+      .positive("O valor não pode ser negativo")
+      .required("Preço é obrigatório"),
+    basePrice: Yup.number()
+      .typeError("Informe um valor númerico")
+      .positive("O valor não pode ser negativo")
+      .required("Preço de custo é obrigatório"),
+    description: Yup.string().nullable(),
+    active: Yup.boolean().default(false).required("Ativo é obrigatório"),
+    controlledInventory: Yup.boolean()
+      .default(false)
+      .required("Ativo é obrigatório"),
+    quantity: Yup.number()
+      .integer("Informe um valor inteiro")
+      .typeError("Informe um valor númerico")
+      .positive("A quantidade não pode ser negativa")
+      .min(0, "A quantidade não pode ser negativa"),
+    image: Yup.string().default("default").nullable(),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+    clearErrors,
+    trigger,
+  } = useForm({
+    mode: "all",
+    resolver: yupResolver(schema),
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [editBarCode, setEditBarCode] = useState(false);
   const [clicked, setClicked] = useState("");
-  const [errorsValidation, setErrorsValidation] = useState<any>({});
+  const [data, setData] = useState<IProductPost>();
   const { productId } = useParams();
+
   const navigate = useNavigate();
 
-  function resetErrors(nameField: string) {
-    const errors = { ...errorsValidation };
-    errors[nameField] = {};
-    setErrorsValidation(errors);
-  }
-
-  async function handlePostData() {
+  async function onSubmit(data: any) {
     setIsLoading(true);
     setClicked("save");
-    const hasErrors = validateFields();
 
-    if (!hasErrors) {
-      if (editMode && productId) {
-        const res = await updateProduct(
-          productId,
-          barCode,
-          name,
-          price,
-          description,
-          isActive
-        );
-        if (res?.success) {
-        }
-      } else {
-        const res = await createProduct(
-          barCode,
-          name,
-          price,
-          description,
-          isActive
-        );
-        if (res?.success) {
-          navigate("/products");
-        }
+    if (editMode && productId) {
+      const res = await updateProduct({ ...data, id: productId });
+      if (res?.success) {
+      }
+    } else {
+      const res = await createProduct(data);
+      if (res?.success) {
+        navigate("/produtos");
       }
     }
 
@@ -81,18 +100,28 @@ export function NewProduct() {
       const response = await deleteProduct(productId);
 
       if (response?.success) {
-        navigate("/products");
+        navigate("/produtos");
       }
     }
     setIsLoading(false);
   }
 
+  function handleBack() {
+    navigate(-1)
+  }
+
   useEffect(() => {
     if (productId) {
       loadData();
+    } else {
+      setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function setImageUrl(url: string): void {
+    setValue("image", url);
+  }
 
   async function loadData() {
     setIsLoading(true);
@@ -100,180 +129,256 @@ export function NewProduct() {
       const data = await getProduct(productId);
       const product = data?.payload;
       if (product) {
-        setBarCode(product.gtin_code);
-        setName(product.name);
-        setPrice(product.price);
-        setDescripiton(product.description);
-        setIsActive(product.active);
+        const {
+          active,
+          description,
+          gtin_code,
+          id,
+          name,
+          price,
+          base_price,
+          image,
+          controlled_inventory,
+          quantity,
+        } = product;
+        const data = {
+          id,
+          description,
+          barCode: gtin_code,
+          name,
+          price,
+          active,
+          basePrice: base_price,
+          image,
+          controlledInventory: controlled_inventory,
+          quantity,
+        };
+
+        setData(data);
+
+        Object.keys(data).forEach((field) => {
+          setValue(field, (data as IIndexable)[field]);
+        });
+
         setEditMode(true);
       }
     }
     setIsLoading(false);
   }
 
-  function validateFields() {
-    const errors = {} as any;
-    let hasErrors = false;
-    if (!barCode) {
-      hasErrors = true;
-      errors.barCode = {
-        error: true,
-        msg: "valor inválido",
-      };
-    }
-
-    if (!name) {
-      hasErrors = true;
-      errors.name = {
-        error: true,
-        msg: "valor inválido",
-      };
-    }
-
-    if (!price || price < 0) {
-      hasErrors = true;
-      errors.price = {
-        error: true,
-        msg: "valor inválido",
-      };
-    }
-    setErrorsValidation(errors);
-
-    return hasErrors;
-  }
-
   return (
     <div id="new-product">
-      <h2>Novo Produto</h2>
+      <h2>{editMode && data?.name ? data.name : "Novo Produto"}</h2>
       <div className="form-container">
-        <form>
-          <div className="top-content">
-            <div className="main-input-container">
-              {isLoading && !clicked? (
-                <div className="loading"> <CircularProgress /> </div>
-              ) : (
-                <>
-                  <div className="line-input">
-                    <TextField
-                      size="small"
-                      id="barCode"
-                      label="Código de barras"
-                      fullWidth
-                      autoFocus={!editMode}
-                      value={barCode}
-                      onChange={(e) => setBarCode(e.target.value)}
-                      autoComplete="off"
-                      disabled={editMode && !editBarCode}
-                      error={errorsValidation["barCode"]?.error}
-                      helperText={errorsValidation["barCode"]?.msg}
-                      onFocus={(e) => resetErrors(e.target.id)}
-                    />
-                    {editMode && (
-                      <button
-                        className={editBarCode ? "edit red" : "edit"}
-                        onClick={() => setEditBarCode(!editBarCode)}
-                        type="button"
-                      >
-                        {" "}
-                        <Edit />{" "}
-                      </button>
+        {isLoading && !clicked ? (
+          <div className="loading">
+            {" "}
+            <CircularProgress />{" "}
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} onReset={reset}>
+            <div className="top-content">
+              <div className="main-input-container">
+                <div className="line-input">
+                  <Controller
+                    name="barCode"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        size="small"
+                        label="Código de barras"
+                        fullWidth
+                        autoFocus={!editMode}
+                        autoComplete="off"
+                        error={!!errors.barCode}
+                        helperText={errors.barCode?.message || " "}
+                        disabled={editMode && !editBarCode}
+                        {...field}
+                      />
                     )}
-                  </div>
+                  />
 
-                  <div className="line-input">
-                    <TextField
-                      size="small"
-                      id="name"
-                      label="Nome"
-                      fullWidth
-                      value={name}
-                      autoComplete="off"
-                      onChange={(e) => setName(e.target.value)}
-                      error={errorsValidation["name"]?.error}
-                      helperText={errorsValidation["name"]?.msg}
-                      onFocus={(e) => resetErrors(e.target.id)}
-                    />
-                  </div>
+                  {editMode && !editBarCode && (
+                    <button
+                      className={editBarCode ? "edit red" : "edit"}
+                      onClick={() => setEditBarCode(!editBarCode)}
+                      type="button"
+                    >
+                      {" "}
+                      <Edit />{" "}
+                    </button>
+                  )}
+                </div>
 
-                  <div className="line-input">
-                    <CurrencyInput
-                      label="Preço"
-                      id="price"
-                      autoComplete="off"
-                      fullWidth={true}
-                      onChangeInput={(value) => {
-                        setPrice(value ? parseFloat(value) : undefined);
-                      }}
-                      currentValue={price}
-                      error={errorsValidation["price"]?.error}
-                      helperText={errorsValidation["price"]?.msg}
-                      onFocus={(e) => resetErrors(e.target.id)}
-                    />
+                <div className="line-input">
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        size="small"
+                        label="Nome"
+                        fullWidth
+                        autoComplete="off"
+                        error={!!errors.name}
+                        helperText={errors.name?.message || " "}
+                        {...field}
+                      />
+                    )}
+                  />
+                </div>
 
-                    <FormControlLabel
-                      control={
+                <div className="line-input">
+                  <CurrencyInput
+                    label="Preço"
+                    id="price"
+                    autoComplete="off"
+                    fullWidth={true}
+                    onChangeInput={(value) => {
+                      setValue("price", value ? parseFloat(value) : undefined);
+                    }}
+                    currentValue={watch("price")}
+                    error={!!errors.price}
+                    helperText={errors.price?.message || " "}
+                    onFocus={() => clearErrors("price")}
+                    onBlur={() => trigger("price")}
+                  />
+                </div>
+                <div className="line-input">
+                  <CurrencyInput
+                    label="Preço de custo"
+                    id="basePrice"
+                    autoComplete="off"
+                    fullWidth={true}
+                    onChangeInput={(value) => {
+                      setValue(
+                        "basePrice",
+                        value ? parseFloat(value) : undefined
+                      );
+                    }}
+                    currentValue={watch("basePrice")}
+                    error={!!errors.basePrice}
+                    helperText={errors.basePrice?.message || " "}
+                    onFocus={() => clearErrors("basePrice")}
+                    onBlur={() => trigger("basePrice")}
+                  />
+                </div>
+
+                <div className="line-input">
+                  <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        size="small"
+                        label="Descrição (opcional)"
+                        fullWidth
+                        multiline={true}
+                        minRows={2}
+                        maxRows={2}
+                        autoComplete="off"
+                        error={errors.description?.message}
+                        // helperText={errors.description?.message || ' '}
+                        {...field}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="upload-image-container">
+                <UploadImages
+                  setValue={setImageUrl}
+                  imageUrl={watch("image")}
+                />
+              </div>
+            </div>
+
+            <div className="bottom-content">
+              <div className="line-input">
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="active"
+                      control={control}
+                      render={({ field }) => (
                         <Switch
-                          checked={isActive}
-                          onChange={(event) =>
-                            setIsActive(event.target.checked)
-                          }
+                          checked={field.value}
+                          {...field}
+                          inputProps={{ "aria-label": "controlled" }}
                         />
-                      }
-                      label="Ativo"
+                      )}
                     />
-                  </div>
+                  }
+                  label="Controle de estoque"
+                />
 
-                  <div className="line-input">
+                <Controller
+                  name="quantity"
+                  control={control}
+                  render={({ field }) => (
                     <TextField
                       size="small"
-                      id="description"
-                      label="Descrição"
-                      multiline={true}
-                      rows={4}
-                      fullWidth
-                      value={description}
+                      label="Quantidade"
+                      type={"number"}
                       autoComplete="off"
-                      onChange={(e) => setDescripiton(e.target.value)}
-                      error={errorsValidation["description"]?.error}
-                      helperText={errorsValidation["description"]?.msg}
+                      error={!!errors.quantity}
+                      helperText={errors.quantity?.message || " "}
+                      {...field}
                     />
-                  </div>
-                </>
-              )}
+                  )}
+                />
+              </div>
+
+              <div className="line-input">
+                <FormControlLabel
+                  control={
+                    <Controller
+                      name="controlledInventory"
+                      control={control}
+                      render={({ field }) => (
+                        <Switch
+                          checked={field.value}
+                          {...field}
+                          inputProps={{ "aria-label": "controlled" }}
+                        />
+                      )}
+                    />
+                  }
+                  label="Produto ativo"
+                />
+              </div>
             </div>
-            <div className="upload-image-container">
-              {isLoading && !clicked?  <div className="loading"> <CircularProgress /> </div> : <UploadImages />}
-            </div>
-          </div>
-          <div className="more-info-container">
-            {editMode && (
-              <Button
-                variant="outlined"
-                onClick={handleDelete}
-                color="error"
-                disabled={isLoading}
-                className="delete-button"
-              >
-                {isLoading && clicked === "delete" ? (
-                  <CircularProgress color="inherit" size={16} />
-                ) : (
-                  "excluir"
-                )}
+            <div className="actions">
+              <Button startIcon={<ArrowBack/>} variant="outlined" onClick={handleBack}>
+                voltar
               </Button>
-            )}
-            <Button
-              variant="contained"
-              onClick={handlePostData}
-              disabled={isLoading}
-            >
-              {isLoading && clicked === "save" ? (
-                <CircularProgress color="inherit" size={16} />
-              ) : (
-                "salvar"
-              )}
-            </Button>
-          </div>
-        </form>
+              <div>
+                {editMode && (
+                  <Button
+                    variant="outlined"
+                    onClick={handleDelete}
+                    color="error"
+                    disabled={isLoading}
+                    className="delete-button"
+                  >
+                    {isLoading && clicked === "delete" ? (
+                      <CircularProgress color="inherit" size={16} />
+                    ) : (
+                      "excluir"
+                    )}
+                  </Button>
+                )}
+                <Button variant="contained" type="submit" disabled={isLoading}>
+                  {isLoading && clicked === "save" ? (
+                    <CircularProgress color="inherit" size={16} />
+                  ) : (
+                    "salvar"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

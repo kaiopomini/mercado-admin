@@ -1,23 +1,9 @@
 #new-product {
-
     display: flex;
     flex-direction: column;
-    min-width: 500px;
 
     .MuiFormHelperText-root {
         margin-top: 0px;
-    }
-
-    .form-container {
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        flex: 1;
-        margin-top: 30px;
-        background-color: var(--main-bg);
-        box-shadow: var(--box-shadow);
-        border-radius: var(--border-radius);
     }
 
     .top-content {
@@ -26,13 +12,15 @@
         flex: 1;
 
         .main-input-container {
-            
+            padding: 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             flex: 1;
             margin-right: 30px;
-           
+            background-color: var(--main-bg);
+            box-shadow: var(--box-shadow);
+            border-radius: var(--border-radius);
             .line-input {
                 display: flex;
                 justify-content: space-between;
@@ -42,10 +30,6 @@
                 }
                 .edit {
                     background-color: transparent;
-                    display: flex;
-                    justify-content: center;
-                    align-items: flex-start;
-                    margin-top: 8px;
 
                     &:hover {
                         color: var(--main-color);
@@ -60,26 +44,16 @@
             display: flex;
             flex: 1;
             justify-content: center;
-            border: 3px dashed #CCC;
+            background-color: var(--main-bg);
+            box-shadow: var(--box-shadow);
             border-radius: var(--border-radius);
             max-width: 450px;
-            cursor: pointer;
         }
     }
-    .bottom-content {
-        padding-top: 24px;
-
-        .line-input {
-            & > :nth-child(n+2) {
-                margin-left: 8px;
-            }
-        }
-
-    }
-    .actions {
+    .more-info-container {
         margin-top: 30px;
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
         align-items: center;
         .delete-button {
             margin-right: 16px;
@@ -94,8 +68,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 60vh;
-        
+        padding: 80px 0;
         
     }
 }

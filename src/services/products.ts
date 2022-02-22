@@ -10,9 +10,20 @@ export interface IPaginatedResponse<T> {
     page: number;
     per_page: number;
     last_page: number
-
 }
 
+export interface IProductPost {
+    id?: string;
+    barCode: string;
+    active: boolean;
+    name: string;
+    description?: string | null;
+    price: number;
+    basePrice: number;
+    controlledInventory: boolean,
+    quantity: number;
+    image: string;
+}
 export interface IResponse<T> {
     payload?: T | null;
     success: boolean;
@@ -25,12 +36,15 @@ export interface IProductList {
     image: string;
     active: boolean;
     name: string;
-    description: string | null;
+    description: string | null ;
     price: number;
+    base_price: number;
+    controlled_inventory: boolean,
+    quantity: number;
     gtin_code: string;
     created_at: Date;
     updated_at: Date;
-    deleted_at: Date | null;
+    deleted_at: Date | null ;
 }
 
 export async function getProductList(search?: string, page?: number, perPage?: number, sort?: string): Promise<IPaginatedResponse<IProductList> | null> {
@@ -39,7 +53,7 @@ export async function getProductList(search?: string, page?: number, perPage?: n
         search,
         page,
         per_page: perPage,
-        sort
+        sort,
     }
 
     try {
@@ -62,14 +76,18 @@ export async function getProduct(id: string): Promise<IResponse<IProductList> | 
 
 }
 
-export async function createProduct(barCode: string, name: string, price: number, description?: string, isActive?: boolean): Promise<IResponse<IProductList> | null> {
+export async function createProduct( {barCode, name, price, description, active, basePrice, controlledInventory, quantity = 0, image = 'default'} : IProductPost ): Promise<IResponse<IProductList> | null> {
 
     const postData = {
         gtin_code: barCode,
         name: name,
         price: price,
+        base_price: basePrice,
         description: description,
-        active: isActive
+        active: active,
+        controlled_inventory: controlledInventory,
+        quantity: quantity,
+        image: image,
     }
 
     try {
@@ -85,14 +103,18 @@ export async function createProduct(barCode: string, name: string, price: number
 
 }
 
-export async function updateProduct(id: string, barCode: string, name: string, price: number, description?: string, isActive?: boolean): Promise<IResponse<IProductList> | null> {
+export async function updateProduct({id, barCode, name, price, description, active, basePrice, controlledInventory, quantity = 0, image = 'default'} : IProductPost): Promise<IResponse<IProductList> | null> {
 
     const postData = {
         gtin_code: barCode,
         name: name,
         price: price,
+        base_price: basePrice,
         description: description,
-        active: isActive
+        active: active,
+        controlled_inventory: controlledInventory,
+        quantity: quantity,
+        image: image,
     }
 
     try {

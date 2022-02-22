@@ -1,7 +1,11 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
-import { api } from '../services/api';
-import { login, logout, signIn as signInService, isAuthenticated as isAuthenticatedService } from '../services/authService';
-
+import { createContext, useContext, useState, ReactNode } from "react";
+import { api } from "../services/api";
+import {
+  login,
+  logout,
+  signIn as signInService,
+  isAuthenticated as isAuthenticatedService,
+} from "../services/authService";
 
 export type User = {
   id: number;
@@ -15,12 +19,12 @@ export type User = {
 
 interface AuthContextData {
   loading: boolean;
-  user: User | undefined;
+  user: User;
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   isAuthenticated: () => boolean;
-  validadeLogin: () => void;
-};
+  validateLogin: () => void;
+}
 
 type AuthProviderProps = {
   children: ReactNode;
@@ -29,53 +33,57 @@ type AuthProviderProps = {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 function AuthProvider({ children }: AuthProviderProps) {
-
   const [user, setUser] = useState({} as User);
 
   const [loading, setLoading] = useState(false);
 
-
-  async function validadeLogin(){
-    const dataUser = (await api.get('me')).data;
-    if (dataUser.success) {
-      setUser({
-        ...dataUser.payload,
-      } as User);
-      return true;
+  async function validateLogin() {
+    try {
+      const dataUser = (await api.get("me")).data;
+      if (dataUser.success) {
+        setUser({
+          ...dataUser.payload,
+        } as User);
+        return true;
+      }
+    } catch (error) {
+      return false;
     }
+
+    return false;
   }
 
   async function signIn(email: string, password: string): Promise<boolean> {
     try {
       setLoading(true);
 
-      const token = await signInService(email, password)
+      const token = await signInService(email, password);
 
       if (token) {
-        login(token)
+        login(token);
       }
-      return false
+      return false;
     } catch (error) {
-      console.log(error)
-      return false
+      console.log(error);
+      return false;
     } finally {
       setLoading(false);
     }
   }
 
   async function signOut() {
-
-    api.defaults.headers.common.Authoization = '';
-    logout()
-
+    api.defaults.headers.common.Authoization = "";
+    logout();
   }
 
   function isAuthenticated() {
-    return (isAuthenticatedService())
+    return isAuthenticatedService();
   }
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, loading, isAuthenticated, validadeLogin }}>
+    <AuthContext.Provider
+      value={{ user, signIn, signOut, loading, isAuthenticated, validateLogin }}
+    >
       {children}
     </AuthContext.Provider>
   );

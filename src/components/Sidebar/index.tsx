@@ -28,8 +28,31 @@ export function Sidebar() {
       for (let i: number = 0; i < links.length; i++) {
         const link = links[i];
         const href = link.href.split("/");
-        const hrefFull = "/" + href[3];
-        if (location.pathname === hrefFull) {
+
+        
+        let hrefFull: string;
+        let path: string;
+
+        const baseRoute = href[3];
+
+        switch (baseRoute) {
+          case "app":
+          case "relatorios":
+          case "notificacao": {
+            hrefFull = `/${baseRoute}/${href[4]}`;
+            const paths = location.pathname.split("/");
+            path = `/${paths[1]}/${paths[2]}`;
+            break;
+          }
+
+          default: {
+            hrefFull = `/${baseRoute}`;
+            const paths = location.pathname.split("/");
+            path = `/${paths[1]}`;
+          }
+        }
+        
+        if (path === hrefFull) {
           const item = link.firstChild as HTMLElement;
           item && item.classList.add("active");
         } else {
@@ -146,7 +169,7 @@ export function Sidebar() {
               <Link to="/relatorios/usuarios" className="link">
                 <li className="sidebarListItem">
                   <SupervisedUserCircle className="sidebarIcon" />
-                  Usúarios
+                  Usuários
                 </li>
               </Link>
             </ul>

@@ -53,7 +53,7 @@ export function TopNav() {
   const { user } = useAuth();
 
   return (
-    <div className="topnav">
+    <div id="topnav">
       <div className="topnav__search">
         {/* <input type="text" placeholder='Search here...' />
                 <i className='bx bx-search'></i> */}

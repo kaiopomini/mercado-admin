@@ -1,10 +1,14 @@
-.layout {
+#layout {
     color: var(--txt-color);
     .layout__content {
         
         padding-left: var(--sidebar-width);
         background-color: var(--second-bg);
         min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 640px;
 
         .layout__navbar {
             position: sticky;

@@ -1,11 +1,11 @@
 import { api } from "./api";
 
-export function uploadFile(file : string | Blob, onUploadProgress: (progressEvent: any) => void | undefined) {
-    let formData = new FormData();
+export function uploadFile(file : File, onUploadProgress: (progressEvent: any) => void | undefined) {
+    const data = new FormData();
 
-    formData.append("file", file);
+    data.append("image", file);
 
-    return api.post("/upload", formData, {
+    return api.post("/file/images", data, {
         headers: {
             "Content-Type": "multipart/form-data",
         },

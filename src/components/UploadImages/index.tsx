@@ -1,105 +1,158 @@
-import { ChangeEvent, useState } from 'react';
-import { Box, Typography, Button, LinearProgress } from '@material-ui/core';
+import { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { Box, Typography, LinearProgress } from "@material-ui/core";
+import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 
-import { uploadFile } from '../../services/upload';
+import { Delete } from "@material-ui/icons";
 
-import noImage from '../../assets/img/product-no-image.png'
+import noImage from "../../assets/img/product-no-image.png";
+import "./styles.scss";
+import { uploadFile } from "../../services/upload";
 
-import './styles.scss';
-
-export function UploadImages() {
-
-    const [currentFile, setCurrentFile] = useState({} as File);
-    const [previewImage, setPreviewImage] = useState('');
-    const [progress, setProgress] = useState(0);
-    const [message, setMessage] = useState('');
-    const [isError, setIsError] = useState(false);
-
-    const selectFile = (event: ChangeEvent<HTMLInputElement>) => {
-        const fileList = event.target.files;
-        if (!fileList) return;
-
-        setCurrentFile(fileList[0]);
-        setPreviewImage(fileList[0] ? URL.createObjectURL(fileList[0]) : '');
-        setProgress(0);
-        setMessage('');
-
-        upload();
-
-    }
-
-    const upload = () => {
-
-        setProgress(0);
-        uploadFile(currentFile, (event) => {
-            setProgress(Math.round((100 * event.loaded) / event.total));
-        }).then((response) => {
-
-            setMessage(response.data.message)
-            setIsError(false)
-
-        }).catch((err) => {
-
-            setProgress(0)
-            setMessage("Houve um erro ao carregar a imagem no servidor")
-            setIsError(true)
-
-        });
-    }
-
-
-
-    return (
-        <div id="upload-image">
-            {previewImage ?
-                <div className="image-preview-container">
-                    <img className="image-preview" src={previewImage} alt="preview da imagem de upload" />
-                </div>
-                :
-                <div className="image-preview-container">
-                    <img className="image-preview" src={noImage} alt="sem imagem do produto" />
-                </div>
-            }
-
-
-            <div className="info-container">
-                {currentFile?.size > 0 && (
-                    <Box className="progress" display="flex" alignItems="center">
-                        <Box width="100%" mr={1}>
-                            <LinearProgress variant="determinate" value={progress} />
-                        </Box>
-                        <Box minWidth={35}>
-                            <Typography variant="body2" color="textSecondary">{`${progress}%`}</Typography>
-                        </Box>
-                    </Box>)
-                }
-                {message && (
-                    <Typography variant="subtitle2" className={`upload-message ${isError ? "error" : ""}`}>
-                        {message}
-                    </Typography>
-                )}
-            </div>
-            <div className="actions">
-                <label htmlFor="btn-upload">
-                    <input
-                        id="btn-upload"
-                        name="btn-upload"
-                        style={{ display: 'none' }}
-                        type="file"
-                        accept="image/*"
-                        onChange={selectFile} />
-                    <Button
-                        className="btn-choose"
-                        variant="outlined"
-                        component="span" >
-                        Selecionar
-                    </Button>
-                </label>
-                <div className="file-name">
-                    {currentFile ? currentFile.name : null}
-                </div>
-            </div>
-
-        </div >
-    );
+interface Props {
+  setValue: (url: string) => void;
+  imageUrl: any;
 }
+
+export const UploadImages = ({ setValue, imageUrl }: Props) => {
+  const [selectPreviewFileUrl, setSelectPreviewFileUrl] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [currentFile, setCurrentFile] = useState<File>();
+  const [error, setError] = useState(false);
+  const [message, setMessage] = useState(" ");
+
+  const onDrop = useCallback(async (acceptedFiles) => {
+    if (acceptedFiles.length <= 0) {
+      return;
+    }
+
+    setError(false);
+    setMessage(" ");
+    setProgress(0);
+
+    const file = acceptedFiles[0];
+    setCurrentFile(file);
+    const fileUrl = URL.createObjectURL(file);
+    setSelectPreviewFileUrl(fileUrl);
+
+    setProgress(0);
+    try {
+      const res = await uploadFile(file, (event) => {
+        setProgress(Math.round((100 * event.loaded) / event.total));
+      });
+
+      setValue(res.data.payload?.url);
+    } catch (error) {
+      setValue("");
+      setCurrentFile(undefined);
+      setError(true);
+      setMessage("Não foi possível carregar a imagem");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onDropRejected = () => {
+    setError(true);
+    setMessage("Formato inválido! Escolha uma imagem com no máximo 2mb");
+    return;
+  };
+
+  const handleClearImage = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setValue("");
+    setCurrentFile(undefined);
+    setSelectPreviewFileUrl("");
+    setProgress(0);
+    setError(false);
+    setMessage(" ");
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    onDropRejected,
+    accept: "image/*",
+    multiple: false,
+    maxSize: 2000000,
+  });
+
+  const renderPreviewImage = () => {
+    if (imageUrl && imageUrl !== "default" && !selectPreviewFileUrl) {
+      return (
+        <div className="image-preview-container">
+          <img
+            className="image-preview"
+            src={imageUrl}
+            alt="preview da imagem de upload"
+          />
+        </div>
+      );
+    } else if (selectPreviewFileUrl && progress === 100) {
+      return (
+        <div className="image-preview-container">
+          <img
+            className="image-preview"
+            src={selectPreviewFileUrl}
+            alt="preview da imagem de upload"
+          />
+        </div>
+      );
+    } else {
+      return (
+        <div className="image-preview-container">
+          <img
+            className="image-preview"
+            src={noImage}
+            alt="sem imagem do produto"
+          />
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div id="upload-image" {...getRootProps()}>
+      {renderPreviewImage()}
+      {imageUrl && imageUrl !== "default" && (
+        <button
+          className={"delete-btn"}
+          onClick={(event) => handleClearImage(event)}
+          type="button"
+        >
+          {" "}
+          <Delete />{" "}
+        </button>
+      )}
+
+      <div className="info-container">
+        {currentFile && currentFile?.size > 0 && (
+          <Box className="progress" display="flex" alignItems="center">
+            <Box width="100%" mr={1}>
+              <LinearProgress variant="determinate" value={progress} />
+            </Box>
+            <Box minWidth={35}>
+              <Typography
+                variant="body2"
+                color="textSecondary"
+              >{`${progress}%`}</Typography>
+            </Box>
+          </Box>
+        )}
+        {message && (
+          <Typography
+            variant="subtitle2"
+            className={`upload-message ${error ? "error" : ""}`}
+          >
+            {message}
+          </Typography>
+        )}
+        <div className="file-name">{currentFile ? currentFile.name : null}</div>
+      </div>
+
+      <input {...getInputProps()} accept="image/*" />
+      <div className="actions">
+        <FileUploadOutlinedIcon fontSize={"large"} />
+        <p>Clique ou arraste uma imagem </p>
+      </div>
+    </div>
+  );
+};
