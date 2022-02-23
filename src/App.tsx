@@ -1,18 +1,20 @@
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from "react-router-dom";
 
-import { AuthProvider } from './hooks/auth';
+import { AuthProvider } from "./hooks/auth";
+import { ApiNotifyProvider } from "./hooks/apiNotify";
 
-import { AppRoutes } from './components/AppRoutes';
+import { AppRoutes } from "./components/AppRoutes";
+import { ApiNotify } from "./components/ApiNotify";
 
 function App() {
-
-  
-
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <ApiNotifyProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+        <ApiNotify/>
+      </ApiNotifyProvider>
     </AuthProvider>
   );
 }

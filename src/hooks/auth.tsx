@@ -70,7 +70,7 @@ function AuthProvider({ children }: AuthProviderProps) {
       return {message: 'Login realizado com sucesso.', success: true};
     } catch (error: any) {
       const response = {
-        message: error?.response?.data || 'Não foi possível realizar o login.',
+        message: error?.response?.data?.message || 'Não foi possível realizar o login.',
         success: false
       }
       return response;

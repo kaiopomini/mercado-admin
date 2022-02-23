@@ -17,11 +17,19 @@ import * as Yup from "yup";
 
 import "./styles.scss";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { NotifyTypesEnum, useApiNotify } from "../../hooks/apiNotify";
+
+type loginForm = {
+  username: string;
+  password: string;
+}
 
 export function SignIn() {
   const navigate = useNavigate();
 
   const { signIn, isAuthenticated } = useAuth();
+  
+  const { addNotification } = useApiNotify();
 
   useEffect(() => {
     if (isAuthenticated()) {
@@ -29,6 +37,11 @@ export function SignIn() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated()]);
+
+  const initialValues = {
+    username: '',
+    password: '',
+  };
 
   const schema = Yup.object().shape({
     username: Yup.string().required("Usuário é obrigatório"),
@@ -39,10 +52,10 @@ export function SignIn() {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm({
     mode: "onSubmit",
     resolver: yupResolver(schema),
+    defaultValues: initialValues,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -58,15 +71,16 @@ export function SignIn() {
     event.preventDefault();
   };
 
-  async function handleSignIn(data: any) {
+  async function handleSignIn(data: loginForm) {
     setIsLoading(true);
 
     const login = await signIn(data.username, data.password);
 
     if(login.success) {
       navigate("/");
-    } 
-    // console.log(login.message)
+    } else {
+      addNotification(login.message, NotifyTypesEnum.Error)
+    }
 
     setIsLoading(false);
   }
@@ -82,7 +96,7 @@ export function SignIn() {
         <div className="main-content">
           <img src={logoBlue} alt="ilustração" />
           <div className="title-form">Login</div>
-          <form onSubmit={handleSubmit(handleSignIn)} onReset={reset}>
+          <form onSubmit={handleSubmit(handleSignIn)} >
             <Controller
               name="username"
               control={control}

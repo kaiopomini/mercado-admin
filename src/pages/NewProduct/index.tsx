@@ -23,6 +23,7 @@ import "./styles.scss";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
+import { NotifyTypesEnum, useApiNotify } from "../../hooks/apiNotify";
 export interface IIndexable {
   [key: string]: any;
 }
@@ -74,19 +75,26 @@ export function NewProduct() {
   const { productId } = useParams();
 
   const navigate = useNavigate();
+  const { addNotification } = useApiNotify();
 
   async function onSubmit(data: any) {
     setIsLoading(true);
     setClicked("save");
 
     if (editMode && productId) {
-      const res = await updateProduct({ ...data, id: productId });
-      if (res?.success) {
+      const response = await updateProduct({ ...data, id: productId });
+      if (response?.success) {
+        addNotification(response.message, NotifyTypesEnum.Success)
+      } else {
+        addNotification(response?.message || 'Não foi possível salvar as alterações feitas no produto.', NotifyTypesEnum.Error)
       }
     } else {
-      const res = await createProduct(data);
-      if (res?.success) {
+      const response = await createProduct(data);
+      if (response?.success) {
+        addNotification(response.message, NotifyTypesEnum.Success)
         // navigate("/produtos");
+      } else {
+        addNotification(response?.message || 'Não foi possível criar o produto.', NotifyTypesEnum.Error)
       }
     }
 
@@ -100,7 +108,10 @@ export function NewProduct() {
       const response = await deleteProduct(productId);
 
       if (response?.success) {
+        addNotification(response.message, NotifyTypesEnum.Success)
         navigate("/produtos");
+      } else {
+        addNotification(response?.message || 'Não foi possível excluir o produto.', NotifyTypesEnum.Error)
       }
     }
     setIsLoading(false);
