@@ -6,32 +6,34 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams,  } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Edit, ArrowBack } from "@material-ui/icons";
 
-import { CurrencyInput } from "../../components/CurrencyInput";
-import { UploadImages } from "../../components/UploadImages";
+import { CurrencyInput } from "../../../components/CurrencyInput";
+import { UploadImages } from "../../../components/UploadImages";
 import {
   createProduct,
   deleteProduct,
   getProduct,
   IProductPost,
   updateProduct,
-} from "../../services/products";
+} from "../../../services/products";
 
 import "./styles.scss";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { NotifyTypesEnum, useApiNotify } from "../../hooks/apiNotify";
+import { NotifyTypesEnum, useApiNotify } from "../../../hooks/apiNotify";
 export interface IIndexable {
   [key: string]: any;
 }
 
-export function NewProduct() {
+export function CreateOrEditProduct() {
   const schema = Yup.object().shape({
-    barCode: Yup.string().required("Codigo de barras é obrigatório"),
-    name: Yup.string().required("Nome é obrigatório"),
+    barCode: Yup.string()
+      .required("Codigo de barras é obrigatório"),
+    name: Yup.string()     
+      .required("Nome é obrigatório"),
     price: Yup.number()
       .typeError("Informe um valor númerico")
       .positive("O valor não pode ser negativo")
@@ -41,11 +43,14 @@ export function NewProduct() {
       .positive("O valor não pode ser negativo")
       .required("Preço de custo é obrigatório"),
     description: Yup.string().nullable(),
-    active: Yup.boolean().default(false).required("Ativo é obrigatório"),
+    active: Yup.boolean()
+      .default(false)
+      .required("Ativo é obrigatório"),
     controlledInventory: Yup.boolean()
       .default(false)
       .required("Ativo é obrigatório"),
     quantity: Yup.number()
+      .default(0)
       .integer("Informe um valor inteiro")
       .typeError("Informe um valor númerico")
       .positive("A quantidade não pode ser negativa")
@@ -84,17 +89,24 @@ export function NewProduct() {
     if (editMode && productId) {
       const response = await updateProduct({ ...data, id: productId });
       if (response?.success) {
-        addNotification(response.message, NotifyTypesEnum.Success)
+        addNotification(response.message, NotifyTypesEnum.Success);
       } else {
-        addNotification(response?.message || 'Não foi possível salvar as alterações feitas no produto.', NotifyTypesEnum.Error)
+        addNotification(
+          response?.message ||
+            "Não foi possível salvar as alterações feitas no produto.",
+          NotifyTypesEnum.Error
+        );
       }
     } else {
       const response = await createProduct(data);
       if (response?.success) {
-        addNotification(response.message, NotifyTypesEnum.Success)
+        addNotification(response.message, NotifyTypesEnum.Success);
         // navigate("/produtos");
       } else {
-        addNotification(response?.message || 'Não foi possível criar o produto.', NotifyTypesEnum.Error)
+        addNotification(
+          response?.message || "Não foi possível criar o produto.",
+          NotifyTypesEnum.Error
+        );
       }
     }
 
@@ -108,17 +120,20 @@ export function NewProduct() {
       const response = await deleteProduct(productId);
 
       if (response?.success) {
-        addNotification(response.message, NotifyTypesEnum.Success)
+        addNotification(response.message, NotifyTypesEnum.Success);
         navigate("/produtos");
       } else {
-        addNotification(response?.message || 'Não foi possível excluir o produto.', NotifyTypesEnum.Error)
+        addNotification(
+          response?.message || "Não foi possível excluir o produto.",
+          NotifyTypesEnum.Error
+        );
       }
     }
     setIsLoading(false);
   }
 
   function handleBack() {
-    navigate(-1)
+    navigate(-1);
   }
 
   useEffect(() => {
@@ -360,7 +375,11 @@ export function NewProduct() {
               </div>
             </div>
             <div className="actions">
-              <Button startIcon={<ArrowBack/>} variant="outlined" onClick={handleBack}>
+              <Button
+                startIcon={<ArrowBack />}
+                variant="outlined"
+                onClick={handleBack}
+              >
                 voltar
               </Button>
               <div>
