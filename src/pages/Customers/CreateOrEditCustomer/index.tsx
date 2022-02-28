@@ -172,7 +172,7 @@ export function CreateOrEditCustomers() {
   }, []);
 
   function setImageUrl(url: string): void {
-    setValue("image", url);
+    setValue("avatar", url);
   }
 
   async function loadData() {
@@ -367,7 +367,7 @@ export function CreateOrEditCustomers() {
               <div className="upload-image-container">
                 <UploadUsersImages
                   setValue={setImageUrl}
-                  imageUrl={watch("image")}
+                  imageUrl={watch("avatar")}
                   viewMode={!editMode}
                 />
               </div>
