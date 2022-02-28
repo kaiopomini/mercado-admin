@@ -122,7 +122,7 @@ export const UploadUsersImages = ({
       { ...(viewMode ? {} : getRootProps()) }
     >
       {renderPreviewImage()}
-      {imageUrl && imageUrl !== "default" && (
+      {imageUrl && imageUrl !== "default" && !viewMode &&(
         <button
           className={"delete-btn"}
           onClick={(event) => handleClearImage(event)}
