@@ -62,6 +62,7 @@ export interface ICustomerPost {
     birthDate?: string;
     phones: [IPhone];
     address: IAddress;
+    password?: string;
 }
 
 export async function getCustomersList(search?: string, page?: number, perPage?: number, sort?: string): Promise<IPaginatedResponse<ICustomerList> | null> {
@@ -93,14 +94,19 @@ export async function getCustomer(id: string): Promise<IResponse<ICustomerList> 
 
 }
 
-export async function createCustomer(barCode: string, name: string, price: number, description?: string, isActive?: boolean): Promise<IResponse<ICustomerList> | null> {
+export async function createCustomer(data : ICustomerPost): Promise<IResponse<ICustomerList> | null> {
 
+    const {address, email, name, phones, surname, avatar, birthDate, cpf, password} = data;
     const postData = {
-        gtin_code: barCode,
-        name: name,
-        price: price,
-        description: description,
-        active: isActive
+       address,
+       email,
+       name,
+       surname,
+       phones,
+       avatar,
+       birth_date: birthDate,
+       cpf,
+       password
     }
 
     try {

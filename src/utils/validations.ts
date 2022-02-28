@@ -9,7 +9,7 @@ export function validadeCPF(cpf: string | null | undefined): boolean {
   //valid format for CPF and CNPJ 
   const validFormatReg = new RegExp('([0-9]{2}[.]?[0-9]{3}[.]?[0-9]{3}[/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[.]?[0-9]{3}[.]?[0-9]{3}[-]?[0-9]{2})');
   
-  if(!validDigitsReg.test(cpf) || validFormatReg.test(cpf)) {
+  if(!validDigitsReg.test(cpf) || !validFormatReg.test(cpf)) {
     return false;
   }
   

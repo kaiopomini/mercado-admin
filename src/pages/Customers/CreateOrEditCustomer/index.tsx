@@ -1,11 +1,12 @@
 import { Button, CircularProgress, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ArrowBack } from "@material-ui/icons";
+import { ArrowBack, Delete } from "@material-ui/icons";
 
 import {
-  deleteCustomer,
+  createCustomer,
   getCustomer,
+  ICustomerList,
   ICustomerPost,
 } from "../../../services/customers";
 
@@ -45,7 +46,9 @@ export function CreateOrEditCustomers() {
       )
       .min(8, "A senha deve ter pelomenos 8 caracteres"),
     cpf: Yup.string()
+      .default(null)
       .notRequired()
+      .nullable()
       .test("is-cpf", "CFP inválido", (value) => {
         if (value) {
           return validadeCPF(value);
@@ -103,63 +106,66 @@ export function CreateOrEditCustomers() {
 
     console.log(data);
 
-    /* if (editMode && userId) {
-    //   const response = await updateProduct({ ...data, id: userId });
-    //   if (response?.success) {
-    //     addNotification(response.message, NotifyTypesEnum.Success);
-    //   } else {
-    //     addNotification(
-    //       response?.message ||
-    //         "Não foi possível salvar as alterações feitas no produto.",
-    //       NotifyTypesEnum.Error
-    //     );
-    //   }
-    // } else {
-    //   const response = await createProduct(data);
-    //   if (response?.success) {
-    //     addNotification(response.message, NotifyTypesEnum.Success);
-    //     // navigate("/produtos");
-    //   } else {
-    //     addNotification(
-    //       response?.message || "Não foi possível criar o produto.",
-    //       NotifyTypesEnum.Error
-    //     );
-    //   }
-    // }
-    */
-
-    setIsLoading(false);
-  }
-
-  async function handleDelete() {
-    setClicked("delete");
-    setIsLoading(true);
-    if (userId) {
-      const response = await deleteCustomer(userId);
-
+    if (editMode && userId) {
+      // const response = await updateCustomer({ ...data, id: userId });
+      const response = { success: false, message: '' }
       if (response?.success) {
         addNotification(response.message, NotifyTypesEnum.Success);
-        navigate("/produtos");
       } else {
         addNotification(
-          response?.message || "Não foi possível excluir o produto.",
+          response?.message ||
+            "Não foi possível salvar as alterações feitas no produto.",
+          NotifyTypesEnum.Error
+        );
+      }
+    } else {
+      const response = await createCustomer(data);
+      if (response?.success) {
+      
+        addNotification(response.message, NotifyTypesEnum.Success);
+        setEditMode(false);
+      } else {
+        addNotification(
+          response?.message || "Não foi possível criar o usuário.",
           NotifyTypesEnum.Error
         );
       }
     }
+    
+
     setIsLoading(false);
   }
+
+  // async function handleDelete() {
+  //   setClicked("delete");
+  //   setIsLoading(true);
+  //   if (userId) {
+  //     const response = await deleteCustomer(userId);
+
+  //     if (response?.success) {
+  //       addNotification(response.message, NotifyTypesEnum.Success);
+  //       navigate("/produtos");
+  //     } else {
+  //       addNotification(
+  //         response?.message || "Não foi possível excluir o produto.",
+  //         NotifyTypesEnum.Error
+  //       );
+  //     }
+  //   }
+  //   setIsLoading(false);
+  // }
 
   function handleBack() {
     navigate(-1);
   }
 
   useEffect(() => {
-    console.log(userId);
+
     if (userId) {
       loadData();
     } else {
       setEditMode(true);
+      setIsLoading(false);
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -175,37 +181,41 @@ export function CreateOrEditCustomers() {
       const data = await getCustomer(userId);
       const customer = data?.payload;
       if (customer) {
-        const {
-          name,
-          address,
-          avatar,
-          email,
-          id,
-          phones,
-          surname,
-          birth_date,
-          cpf,
-        } = customer;
-        const data = {
-          name,
-          address,
-          avatar,
-          email,
-          id,
-          phones,
-          surname,
-          birthDate: birth_date,
-          cpf,
-        };
-
-        await setData(data);
-
-        await Object.keys(data).forEach((field) => {
-          setValue(field, (data as IIndexable)[field]);
-        });
+        populateData(customer)
       }
     }
     setIsLoading(false);
+  }
+
+  const populateData = async (customer: ICustomerList) => {
+    const {
+      name,
+      address,
+      avatar,
+      email,
+      id,
+      phones,
+      surname,
+      birth_date,
+      cpf,
+    } = customer;
+    const data = {
+      name,
+      address,
+      avatar,
+      email,
+      id,
+      phones,
+      surname,
+      birthDate: birth_date,
+      cpf,
+    };
+
+    setData(data);
+
+    Object.keys(data).forEach((field) => {
+      setValue(field, (data as IIndexable)[field]);
+    });
   }
 
   const handleAddPhone = () => {
@@ -472,18 +482,19 @@ export function CreateOrEditCustomers() {
                   {index > 0 && editMode && (
                     <Button
                       style={{ height: "40px" }}
-                      startIcon={<Add />}
+                      color="error"
+                      startIcon={<Delete />}
                       variant="outlined"
                       onClick={() => handleDeletePhone(index)}
                     >
-                      deletar
+                      Remover
                     </Button>
                   )}
                 </div>
               ))}
 
               {editMode && (
-                <div className="line-input ">
+                <div className="line-input add-phone">
                   <Button
                     startIcon={<Add />}
                     variant="outlined"
@@ -505,7 +516,7 @@ export function CreateOrEditCustomers() {
               <div>
                 {editMode && (
                   <>
-                    <Button
+                    {/* <Button
                       variant="outlined"
                       onClick={handleDelete}
                       color="error"
@@ -517,7 +528,7 @@ export function CreateOrEditCustomers() {
                       ) : (
                         "excluir"
                       )}
-                    </Button>
+                    </Button> */}
                     <Button
                       variant="contained"
                       type="submit"
