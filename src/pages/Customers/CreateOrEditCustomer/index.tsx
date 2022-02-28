@@ -100,11 +100,10 @@ export function CreateOrEditCustomers() {
   const navigate = useNavigate();
   const { addNotification } = useApiNotify();
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: any, e:any) {
+    e.preventDefault()
     setIsLoading(true);
     setClicked("save");
-
-    console.log(data);
 
     if (editMode && userId) {
       // const response = await updateCustomer({ ...data, id: userId });
@@ -131,7 +130,6 @@ export function CreateOrEditCustomers() {
         );
       }
     }
-    
 
     setIsLoading(false);
   }
@@ -211,6 +209,8 @@ export function CreateOrEditCustomers() {
       cpf,
     };
 
+    setArrControllerPhones(phones.map((item, index) => index))
+
     setData(data);
 
     Object.keys(data).forEach((field) => {
@@ -245,7 +245,7 @@ export function CreateOrEditCustomers() {
             <CircularProgress />{" "}
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} onReset={reset}>
+          <form onSubmit={e => e.preventDefault()} onReset={reset}>
             <div className="top-content">
               <div className="main-input-container">
                 <div className="line-input">
@@ -531,8 +531,8 @@ export function CreateOrEditCustomers() {
                     </Button> */}
                     <Button
                       variant="contained"
-                      type="submit"
                       disabled={isLoading}
+                      onClick={handleSubmit(onSubmit)}
                     >
                       {isLoading && clicked === "save" ? (
                         <CircularProgress color="inherit" size={16} />

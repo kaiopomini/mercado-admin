@@ -81,6 +81,7 @@ export function CreateOrEditProduct() {
   const [editBarCode, setEditBarCode] = useState(false);
   const [clicked, setClicked] = useState("");
   const [data, setData] = useState<IProductPost>();
+  const [newProductId, setNewProductId] = useState('');
   const { productId } = useParams();
 
   const navigate = useNavigate();
@@ -90,8 +91,10 @@ export function CreateOrEditProduct() {
     setIsLoading(true);
     setClicked("save");
 
-    if (editMode && productId) {
-      const response = await updateProduct({ ...data, id: productId });
+    if (editMode && (productId || newProductId)) {
+      console.log(newProductId)
+      const id = newProductId ? newProductId : productId;
+      const response = await updateProduct({ ...data, id });
       if (response?.success) {
         addNotification(response.message, NotifyTypesEnum.Success);
       } else {
@@ -105,6 +108,8 @@ export function CreateOrEditProduct() {
       const response = await createProduct(data);
       if (response?.success) {
         addNotification(response.message, NotifyTypesEnum.Success);
+        response.payload?.id && setNewProductId(response.payload.id)
+        setEditMode(true);
         // navigate("/produtos");
       } else {
         addNotification(
@@ -208,7 +213,7 @@ export function CreateOrEditProduct() {
             <CircularProgress />{" "}
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} onReset={reset}>
+          <form onSubmit={e => e.preventDefault()} onReset={reset}>
             <div className="top-content">
               <div className="main-input-container">
                 <div className="line-input">
@@ -432,7 +437,7 @@ export function CreateOrEditProduct() {
                     )}
                   </Button>
                 )}
-                <Button variant="contained" type="submit" disabled={isLoading}>
+                <Button variant="contained" disabled={isLoading} onClick={handleSubmit(onSubmit)}>
                   {isLoading && clicked === "save" ? (
                     <CircularProgress color="inherit" size={16} />
                   ) : (

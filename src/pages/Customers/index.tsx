@@ -169,6 +169,8 @@ export function Customers() {
       } else {
         loadData(true);
       }
+    } else {
+      setSearch("");
     }
   };
 

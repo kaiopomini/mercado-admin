@@ -154,6 +154,8 @@ export function Products() {
       } else {
         loadData(true);
       }
+    } else {
+      setSearch("");
     }
   };
 
