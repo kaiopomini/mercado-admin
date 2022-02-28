@@ -8,6 +8,7 @@
     box-shadow: var(--box-shadow);
     overflow-y: auto;
     overflow-x: hidden;
+    z-index: 1000;
 
     .sidebar__logo {
         height: 150px;

@@ -5,16 +5,16 @@ import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 
 import { Delete } from "@material-ui/icons";
 
-import noImage from "../../assets/img/product-no-image.png";
+import noImage from "../../../assets/img/product-no-image.png";
 import "./styles.scss";
-import { uploadFile } from "../../services/upload";
+import { uploadFile } from "../../../services/upload";
 
 interface Props {
   setValue: (url: string) => void;
   imageUrl: any;
 }
 
-export const UploadImages = ({ setValue, imageUrl }: Props) => {
+export const UploadProductsImages = ({ setValue, imageUrl }: Props) => {
   const [selectPreviewFileUrl, setSelectPreviewFileUrl] = useState("");
   const [progress, setProgress] = useState(0);
   const [currentFile, setCurrentFile] = useState<File>();
@@ -111,7 +111,7 @@ export const UploadImages = ({ setValue, imageUrl }: Props) => {
   };
 
   return (
-    <div id="upload-image" {...getRootProps()}>
+    <div id="upload-producs-images" {...getRootProps()}>
       {renderPreviewImage()}
       {imageUrl && imageUrl !== "default" && (
         <button
@@ -146,7 +146,6 @@ export const UploadImages = ({ setValue, imageUrl }: Props) => {
             {message}
           </Typography>
         )}
-        <div className="file-name">{currentFile ? currentFile.name : null}</div>
       </div>
 
       <input {...getInputProps()} accept="image/*" />

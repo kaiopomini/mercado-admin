@@ -1,7 +1,12 @@
 import {
   Button,
   CircularProgress,
+  FormControl,
   FormControlLabel,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
   Switch,
   TextField,
 } from "@mui/material";
@@ -10,7 +15,7 @@ import { useNavigate, useParams } from "react-router";
 import { Edit, ArrowBack } from "@material-ui/icons";
 
 import { CurrencyInput } from "../../../components/CurrencyInput";
-import { UploadImages } from "../../../components/UploadImages";
+import { UploadProductsImages } from "../../../components/inputs/UploadProductsImages";
 import {
   createProduct,
   deleteProduct,
@@ -30,10 +35,10 @@ export interface IIndexable {
 
 export function CreateOrEditProduct() {
   const schema = Yup.object().shape({
-    barCode: Yup.string()
-      .required("Codigo de barras é obrigatório"),
-    name: Yup.string()     
-      .required("Nome é obrigatório"),
+    barCode: Yup.string().required("Codigo de barras é obrigatório"),
+    name: Yup.string()
+      .required("Nome é obrigatório")
+      .max(100, "Máximo de 100 caracteres"),
     price: Yup.number()
       .typeError("Informe um valor númerico")
       .positive("O valor não pode ser negativo")
@@ -42,10 +47,8 @@ export function CreateOrEditProduct() {
       .typeError("Informe um valor númerico")
       .positive("O valor não pode ser negativo")
       .required("Preço de custo é obrigatório"),
-    description: Yup.string().nullable(),
-    active: Yup.boolean()
-      .default(false)
-      .required("Ativo é obrigatório"),
+    description: Yup.string().nullable().max(255, "Máximo de 255 caracteres"),
+    active: Yup.boolean().default(false).required("Ativo é obrigatório"),
     controlledInventory: Yup.boolean()
       .default(false)
       .required("Ativo é obrigatório"),
@@ -55,7 +58,8 @@ export function CreateOrEditProduct() {
       .typeError("Informe um valor númerico")
       .positive("A quantidade não pode ser negativa")
       .min(0, "A quantidade não pode ser negativa"),
-    image: Yup.string().default("default").nullable(),
+    quantityType: Yup.string().required("Unidade é obrigatório"),
+    image: Yup.string().default("").nullable(),
   });
 
   const {
@@ -166,6 +170,7 @@ export function CreateOrEditProduct() {
           image,
           controlled_inventory,
           quantity,
+          quantity_type
         } = product;
         const data = {
           id,
@@ -178,6 +183,7 @@ export function CreateOrEditProduct() {
           image,
           controlledInventory: controlled_inventory,
           quantity,
+          quantityType: quantity_type
         };
 
         setData(data);
@@ -300,11 +306,11 @@ export function CreateOrEditProduct() {
                         label="Descrição (opcional)"
                         fullWidth
                         multiline={true}
-                        minRows={2}
-                        maxRows={2}
+                        minRows={3}
+                        maxRows={3}
                         autoComplete="off"
                         error={errors.description?.message}
-                        // helperText={errors.description?.message || ' '}
+                        helperText={errors.description?.message || " "}
                         {...field}
                       />
                     )}
@@ -312,7 +318,7 @@ export function CreateOrEditProduct() {
                 </div>
               </div>
               <div className="upload-image-container">
-                <UploadImages
+                <UploadProductsImages
                   setValue={setImageUrl}
                   imageUrl={watch("image")}
                 />
@@ -320,7 +326,51 @@ export function CreateOrEditProduct() {
             </div>
 
             <div className="bottom-content">
-              <div className="line-input">
+              <div className="line-input quantity-container">
+                <Controller
+                  name="quantity"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      size="small"
+                      label="Quantidade"
+                      type={"number"}
+                      autoComplete="off"
+                      error={!!errors.quantity}
+                      helperText={errors.quantity?.message || " "}
+                      {...field}
+                    />
+                  )}
+                />
+                <FormControl size="small" error={errors.quantityType } sx={{ m: 0, minWidth: 120 }}>
+                  <InputLabel id="select-input" > Unidade</InputLabel>
+                  <Controller
+                    
+                    name="quantityType"
+                    control={control}
+                    render={({ field, fieldState}) => (
+                      <>
+                        <Select
+                          labelId="select-input"
+                          size="small"
+                          value={field.value}
+                          label="Unidade"
+                          error={!!errors.quantityType}
+                          onChange={(e) => setValue(field.name, e.target.value)}
+                        >
+                          <MenuItem value={undefined}>
+                            <em>Selecione</em>
+                          </MenuItem>
+                          <MenuItem value={'kg'}>Kilos (Kg)</MenuItem>
+                          <MenuItem value={'un'}>Unidade (Un)</MenuItem>
+                        </Select>
+                        <FormHelperText>{errors.quantityType?.message || " "}</FormHelperText>
+                      </>
+                    )}
+                  />
+                  
+                </FormControl>
+
                 <FormControlLabel
                   control={
                     <Controller
@@ -336,22 +386,6 @@ export function CreateOrEditProduct() {
                     />
                   }
                   label="Controle de estoque"
-                />
-
-                <Controller
-                  name="quantity"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      size="small"
-                      label="Quantidade"
-                      type={"number"}
-                      autoComplete="off"
-                      error={!!errors.quantity}
-                      helperText={errors.quantity?.message || " "}
-                      {...field}
-                    />
-                  )}
                 />
               </div>
 
@@ -374,7 +408,7 @@ export function CreateOrEditProduct() {
                 />
               </div>
             </div>
-            <div className="actions">
+            <div className="actions-container">
               <Button
                 startIcon={<ArrowBack />}
                 variant="outlined"

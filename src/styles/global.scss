@@ -32,6 +32,8 @@
     --main-color-orange: #d68102;
     --second-color-orange: #fca11a;
 
+    --success-color-green: #257d32;
+
     --sidebar-width: 240px;
     --border-radius: 15px;
     --topnav-height: 80px;
@@ -89,13 +91,13 @@ input {
 
 
 .page-header {
-    margin-bottom: 40px;
+    margin-bottom: 16px;
     text-transform: capitalize;
 }
 
 .card {
-    padding: 30px;
-    margin-bottom: 30px;
+    padding: 16px;
+    margin-bottom: 16px;
     background-color: var(--main-bg);
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius);
@@ -170,4 +172,8 @@ html {
         background-color: #ccc; /* color of the scroll thumb */
         border-radius: 20px; /* roundness of the scroll thumb */
     }
+}
+
+.MuiFormControl-root {
+    margin: 0;
 }

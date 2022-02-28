@@ -3,21 +3,22 @@
     .layout__content {
         
         padding-left: var(--sidebar-width);
+        padding-top: var(--topnav-height);
         background-color: var(--second-bg);
-        min-height: 100vh;
         display: flex;
         flex-direction: column;
         flex: 1;
         min-width: 640px;
 
         .layout__navbar {
-            position: sticky;
+            position: fixed;
             height: var(--topnav-height);
             width: 100%;
             top: 0;
             left: 0;
             background-color: var(--second-bg);
             z-index: 999;
+            padding-left: var(--sidebar-width);
             // background-color: var(--main-bg);
             box-shadow: var(--box-shadow);
             // border-bottom-left-radius: var(--border-radius);
@@ -26,7 +27,8 @@
     
     
         .layout__content-main {
-            padding: 16px 30px;
+            padding: 16px;
+            min-width: 600px;
             
         }
     }

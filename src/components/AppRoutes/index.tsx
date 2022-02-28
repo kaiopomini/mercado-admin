@@ -6,6 +6,7 @@ import { Products } from '../../pages/Products';
 import { CreateOrEditProduct } from '../../pages/Products/CreateOrEditProduct';
 import { Layout } from '../Layout';
 import { RequireAuth } from '../RequireAuth';
+import { CreateOrEditCustomers } from '../../pages/Customers/CreateOrEditCustomer';
 
 
 export function AppRoutes() {
@@ -13,12 +14,19 @@ export function AppRoutes() {
         <Routes>
             <Route path='/' element={<RequireAuth ><Layout /></RequireAuth>} >
                 <Route index element={<RequireAuth ><Dashboard /></RequireAuth>} />
-                <Route path="usuarios" element={<RequireAuth roles={['admin']}><Customers /></RequireAuth>} />
+
+                <Route path="usuarios">
+                    <Route index element={<RequireAuth roles={['admin']}><Customers /></RequireAuth>} />
+                    <Route path=":userId" element={<RequireAuth roles={['admin']}><CreateOrEditCustomers /></RequireAuth>} />
+                    <Route path="novo" element={<RequireAuth roles={['admin']}><CreateOrEditCustomers /></RequireAuth>} />
+                </Route>
+
                 <Route path="produtos">
                     <Route index element={<RequireAuth roles={['admin']}><Products /></RequireAuth>} />
                     <Route path=":productId" element={<RequireAuth roles={['admin']}><CreateOrEditProduct /></RequireAuth>} />
                     <Route path="novo" element={<RequireAuth roles={['admin']}><CreateOrEditProduct /></RequireAuth>} />
                 </Route>
+                
                 <Route path="*" element={<RequireAuth roles={['admin']}><>Não encontrando</></RequireAuth>} />
             </Route>
 

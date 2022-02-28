@@ -21,8 +21,9 @@ export interface IProductPost {
     price: number;
     basePrice: number;
     controlledInventory: boolean,
-    quantity: number;
-    image: string;
+    quantity?: number;
+    image?: string;
+    quantityType: string;
 }
 export interface IResponse<T> {
     payload?: T | null;
@@ -41,6 +42,7 @@ export interface IProductList {
     base_price: number;
     controlled_inventory: boolean,
     quantity: number;
+    quantity_type: string;
     gtin_code: string;
     created_at: Date;
     updated_at: Date;
@@ -76,7 +78,7 @@ export async function getProduct(id: string): Promise<IResponse<IProductList> | 
 
 }
 
-export async function createProduct( {barCode, name, price, description, active, basePrice, controlledInventory, quantity = 0, image = 'default'} : IProductPost ): Promise<IResponse<IProductList> | null> {
+export async function createProduct( {barCode, name, price, description, active, basePrice, controlledInventory, quantity, image, quantityType} : IProductPost ): Promise<IResponse<IProductList> | null> {
 
     const postData = {
         gtin_code: barCode,
@@ -88,6 +90,7 @@ export async function createProduct( {barCode, name, price, description, active,
         controlled_inventory: controlledInventory,
         quantity: quantity,
         image: image,
+        quantity_type: quantityType
     }
 
     try {
@@ -103,7 +106,7 @@ export async function createProduct( {barCode, name, price, description, active,
 
 }
 
-export async function updateProduct({id, barCode, name, price, description, active, basePrice, controlledInventory, quantity = 0, image = 'default'} : IProductPost): Promise<IResponse<IProductList> | null> {
+export async function updateProduct({id, barCode, name, price, description, active, basePrice, controlledInventory, quantity, image, quantityType} : IProductPost): Promise<IResponse<IProductList> | null> {
 
     const postData = {
         gtin_code: barCode,
@@ -115,6 +118,7 @@ export async function updateProduct({id, barCode, name, price, description, acti
         controlled_inventory: controlledInventory,
         quantity: quantity,
         image: image,
+        quantity_type: quantityType
     }
 
     try {

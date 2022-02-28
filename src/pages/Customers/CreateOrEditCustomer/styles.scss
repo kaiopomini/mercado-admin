@@ -1,6 +1,7 @@
-#new-product {
+#newUser {
   display: flex;
   flex-direction: column;
+
   .MuiFormHelperText-root {
     margin-top: 0px;
     margin-bottom: 4px;
@@ -34,7 +35,7 @@
         display: flex;
         justify-content: space-between;
 
-        & > :nth-child(2) {
+        & > :nth-child(n + 2) {
           margin-left: 8px;
         }
         .edit {
@@ -55,8 +56,8 @@
     }
     .upload-image-container {
       display: flex;
-
       justify-content: center;
+      border-radius: var(--border-radius);
     }
   }
   .bottom-content {
@@ -72,26 +73,16 @@
       & > :nth-child(n + 2) {
         margin-left: 8px;
       }
-      &.quantity-container {
+      &.address-container {
         & > :nth-child(1) {
-          flex: 3;
+           flex: 8;
         }
         & > :nth-child(2) {
-          flex: 6;
-        }
-        & > :nth-child(3) {
-          flex: 2;
-          justify-content: flex-end;
-          align-items: initial;
-          min-width: 244px;
-          & .MuiTypography-root{
-            padding-top: 8px;
-          }
-        }
+            flex: 2;
+         }
       }
     }
   }
-
   .actions-container {
     margin-top: 16px;
     display: flex;
