@@ -7,7 +7,7 @@ import { Delete } from "@material-ui/icons";
 
 import noImage from "../../../assets/img/user-no-image.png";
 import "./styles.scss";
-import { uploadFile } from "../../../services/upload";
+import { uploadUserImage } from "../../../services/upload";
 
 interface Props {
   setValue: (url: string) => void;
@@ -42,7 +42,7 @@ export const UploadUsersImages = ({
 
     setProgress(0);
     try {
-      const res = await uploadFile(file, (event) => {
+      const res = await uploadUserImage(file, (event) => {
         setProgress(Math.round((90 * event.loaded) / event.total));
       });
       setProgress(100);
@@ -81,6 +81,10 @@ export const UploadUsersImages = ({
     maxSize: 2000000,
   });
 
+  const setDefaultSrc = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    event.currentTarget.src = noImage;
+  }
+
   const renderPreviewImage = () => {
     if (imageUrl && imageUrl !== "default" && !selectPreviewFileUrl) {
       return (
@@ -89,6 +93,7 @@ export const UploadUsersImages = ({
             className="image-preview"
             src={imageUrl}
             alt="preview da imagem de upload"
+            onError={setDefaultSrc}
           />
         </div>
       );

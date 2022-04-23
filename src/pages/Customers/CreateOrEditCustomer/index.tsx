@@ -40,10 +40,6 @@ export function CreateOrEditCustomers() {
       .matches(/[A-Z]/, "A senha deve ter pelomenos 1 letra maiúscula")
       .matches(/[a-z]/, "A senha deve ter pelomenos 1 letra minúscula")
       .matches(/[0-9]/, "A senha deve ter pelomenos 1 número")
-      .matches(
-        /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~´|']/,
-        "A senha deve ter pelomenos 1 caractere especial"
-      )
       .min(8, "A senha deve ter pelomenos 8 caracteres"),
     cpf: Yup.string()
       .default(null)
@@ -188,7 +184,7 @@ export function CreateOrEditCustomers() {
   const populateData = async (customer: ICustomerList) => {
     const {
       name,
-      address,
+      addresses,
       avatar,
       email,
       id,
@@ -199,7 +195,7 @@ export function CreateOrEditCustomers() {
     } = customer;
     const data = {
       name,
-      address,
+      address: addresses[0],
       avatar,
       email,
       id,
@@ -460,7 +456,7 @@ export function CreateOrEditCustomers() {
                 />
               </div>
               {arrControllerPhones.map((item: any, index: number) => (
-                <div className="line-input address-container">
+                <div key={index} className="line-input address-container">
                   <Controller
                     name={`phones[${index}].phone_number`}
                     control={control}

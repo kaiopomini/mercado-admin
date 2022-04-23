@@ -51,9 +51,15 @@ interface Data {
   phoneField: string;
   cpfField: string;
   updatedAtField: string;
+  id: string;
 }
 
 function createData(customer: ICustomerList): Data {
+
+  const setDefaultSrc = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    event.currentTarget.src = noImage;
+  }
+
   const { id, avatar, name, surname, email, validated_email, cpf, updated_at, phones } =
     customer;
 
@@ -71,6 +77,7 @@ function createData(customer: ICustomerList): Data {
       <img
         src={avatar && avatar !== "default" ? avatar : noImage}
         alt={"imagem avatar usuário" + name}
+        onError={setDefaultSrc}
       />
       <p>{`${name} ${surname}`}</p>
     </div>
@@ -89,7 +96,7 @@ function createData(customer: ICustomerList): Data {
 
   const updatedAtField = new Date(updated_at).toDateString() || "-";
 
-  return { actions, customerField, emailField, cpfField, updatedAtField, phoneField };
+  return { actions, customerField, emailField, cpfField, updatedAtField, phoneField, id };
 }
 
 export function Customers() {
@@ -272,13 +279,13 @@ export function Customers() {
               <>
                 {rows?.length > 0 ? (
                   <TableBody>
-                    {rows.map((row: any, index: number) => {
+                    {rows.map((row: Data, index: number) => {
                       return (
                         <TableRow
                           hover
                           role="checkbox"
                           tabIndex={-1}
-                          key={row.code}
+                          key={row.id}
                           id={"row" + index}
                         >
                           {columns.map((column) => {

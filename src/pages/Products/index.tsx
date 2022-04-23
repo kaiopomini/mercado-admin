@@ -44,11 +44,15 @@ interface Data {
   code: string;
   quantity: number;
   inventoryControl: string;
+  id: string;
 }
 
 function createData(
   item : IProductList
 ): Data {
+  const setDefaultSrc = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    event.currentTarget.src = noImage;
+  }
   const {id, image, name, active, quantity, controlled_inventory, price, gtin_code} = item
   const actions = (
     <div className="product-edit">
@@ -64,6 +68,7 @@ function createData(
       <img
         src={image && image !== "default" ? image : noImage}
         alt={"imagem produto " + name}
+        onError={setDefaultSrc}
       />
       <p>{name}</p>
     </div>
@@ -74,7 +79,7 @@ function createData(
   const inventoryControl = controlled_inventory ? "Ativo" : "Inativo";
   
 
-  return { actions, product, price, active: status, code: gtin_code, quantity, inventoryControl };
+  return { actions, product, price, active: status, code: gtin_code, quantity, inventoryControl, id };
 }
 
 export function Products() {
@@ -268,13 +273,13 @@ export function Products() {
               <>
                 {rows?.length > 0 ? (
                   <TableBody>
-                    {rows.map((row: any, index: number) => {
+                    {rows.map((row: Data, index: number) => {
                       return (
                         <TableRow
                           hover
                           role="checkbox"
                           tabIndex={-1}
-                          key={row.code}
+                          key={row.id}
                           id={"row" + index}
                         >
                           {columns.map((column) => {

@@ -24,6 +24,10 @@ const renderNotificationItem = (item: renderItemProps, index: number) => (
   </div>
 );
 
+const setDefaultSrc = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  event.currentTarget.src = user_image;
+}
+
 const renderUserToggle = (user: User | undefined) => (
   <div className="topnav__right-user">
     <div className="topnav__right-user__image">
@@ -34,6 +38,7 @@ const renderUserToggle = (user: User | undefined) => (
             : user_image
         }
         alt="imagem avatar"
+        onError={setDefaultSrc}
       />
     </div>
     <div className="topnav__right-user__name">{user && user.name}</div>

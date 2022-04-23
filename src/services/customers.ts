@@ -49,7 +49,7 @@ export interface ICustomerList {
     created_at: Date;
     updated_at: Date;
     deleted_at: Date;
-    address: IAddress;
+    addresses: [IAddress];
 }
 
 export interface ICustomerPost {
