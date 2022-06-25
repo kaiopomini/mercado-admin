@@ -1,21 +1,29 @@
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, useNavigate } from "react-router-dom";
 
 import { AuthProvider } from "./hooks/auth";
-import { ApiNotifyProvider } from "./hooks/apiNotify";
+import { ApiNotifyProvider, useApiNotify } from "./hooks/apiNotify";
 
 import { AppRoutes } from "./components/AppRoutes";
-import { ApiNotify } from "./components/ApiNotify";
+
+import { customIntercept } from "./services/api.service";
+
+function AxiosNavigateSetup() {
+  const navigate = useNavigate();
+  customIntercept(navigate, useApiNotify());
+  return <></>;
+}
 
 function App() {
   return (
-    <AuthProvider>
-      <ApiNotifyProvider>
-        <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <ApiNotifyProvider>
           <AppRoutes />
-        </BrowserRouter>
-        <ApiNotify/>
-      </ApiNotifyProvider>
-    </AuthProvider>
+          {/* <ApiNotify /> */}
+          <AxiosNavigateSetup />
+        </ApiNotifyProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

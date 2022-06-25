@@ -8,7 +8,7 @@ import {
   getCustomer,
   ICustomerList,
   ICustomerPost,
-} from "../../../services/customers";
+} from "../../../services/customers.service";
 
 import "./styles.scss";
 import { Controller, useForm } from "react-hook-form";
@@ -96,14 +96,14 @@ export function CreateOrEditCustomers() {
   const navigate = useNavigate();
   const { addNotification } = useApiNotify();
 
-  async function onSubmit(data: any, e:any) {
-    e.preventDefault()
+  async function onSubmit(data: any, e: any) {
+    e.preventDefault();
     setIsLoading(true);
     setClicked("save");
 
     if (editMode && userId) {
       // const response = await updateCustomer({ ...data, id: userId });
-      const response = { success: false, message: '' }
+      const response = { success: false, message: "" };
       if (response?.success) {
         addNotification(response.message, NotifyTypesEnum.Success);
       } else {
@@ -116,7 +116,6 @@ export function CreateOrEditCustomers() {
     } else {
       const response = await createCustomer(data);
       if (response?.success) {
-      
         addNotification(response.message, NotifyTypesEnum.Success);
         setEditMode(false);
       } else {
@@ -154,7 +153,6 @@ export function CreateOrEditCustomers() {
   }
 
   useEffect(() => {
-
     if (userId) {
       loadData();
     } else {
@@ -175,7 +173,7 @@ export function CreateOrEditCustomers() {
       const data = await getCustomer(userId);
       const customer = data?.payload;
       if (customer) {
-        populateData(customer)
+        populateData(customer);
       }
     }
     setIsLoading(false);
@@ -205,14 +203,14 @@ export function CreateOrEditCustomers() {
       cpf,
     };
 
-    setArrControllerPhones(phones.map((item, index) => index))
+    setArrControllerPhones(phones.map((item, index) => index));
 
     setData(data);
 
     Object.keys(data).forEach((field) => {
       setValue(field, (data as IIndexable)[field]);
     });
-  }
+  };
 
   const handleAddPhone = () => {
     const oldArr = [...arrControllerPhones];
@@ -241,7 +239,7 @@ export function CreateOrEditCustomers() {
             <CircularProgress />{" "}
           </div>
         ) : (
-          <form onSubmit={e => e.preventDefault()} onReset={reset}>
+          <form onSubmit={(e) => e.preventDefault()} onReset={reset}>
             <div className="top-content">
               <div className="main-input-container">
                 <div className="line-input">

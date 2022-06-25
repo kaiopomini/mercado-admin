@@ -5,7 +5,7 @@ import "./styles.scss";
 
 import { toCurrency } from "../../utils/numberFormat";
 import { Button } from "@material-ui/core";
-import { getProductList, IProductList } from "../../services/products";
+import { getProductList, IProductList } from "../../services/products.service";
 import {
   Search,
   Close,
@@ -17,33 +17,7 @@ import {
 
 import noImage from "../../assets/img/product-no-image.png";
 import { Table } from "../../components/Table";
-
-type typesIds = {
-  products:
-    | "actions"
-    | "product"
-    | "price"
-    | "active"
-    | "code"
-    | "inventoryControl"
-    | "quantity";
-  users:
-    | "actions"
-    | "customerField"
-    | "emailField"
-    | "cpfField"
-    | "phoneField"
-    | "updatedAtField";
-};
-export interface Column {
-  id: typesIds['products'] | typesIds['users'];
-  label: string;
-  minWidth?: number;
-  align?: "right";
-  format?: (value: any) => string;
-  action?: () => void;
-  icon?: ReactNode;
-}
+import { Column, TypesIds } from "../../entities/TableFields";
 
 interface Data {
   actions: ReactNode;
@@ -56,9 +30,7 @@ interface Data {
   id: string;
 }
 
-
-function createData(item: IProductList ): Data {
-  
+function createData(item: IProductList): Data {
   const setDefaultSrc = (
     event: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
@@ -75,7 +47,7 @@ function createData(item: IProductList ): Data {
     price,
     gtin_code,
   } = item;
-  
+
   const actions = (
     <div className="product-edit">
       <Link to={"/produtos/" + id}>
@@ -198,7 +170,7 @@ export function Products() {
     sort === "asc" ? setSort("desc") : setSort("asc");
   };
 
-  const columns: Column[] = [
+  const columns: Column<TypesIds["products"]>[] = [
     { id: "actions", label: "Ações", minWidth: 100 },
     {
       id: "product",
@@ -270,16 +242,15 @@ export function Products() {
       </div>
 
       <Table
-      columns={columns}
-      isLoading={isLoading}
-      rows={rows}
-      total={total}
-      perPage={perPage}
-      page={page}
-      handleChangePage={handleChangePage}
-      handleChangeRowsPerPage={handleChangeRowsPerPage}
+        columns={columns}
+        isLoading={isLoading}
+        rows={rows}
+        total={total}
+        perPage={perPage}
+        page={page}
+        handleChangePage={handleChangePage}
+        handleChangeRowsPerPage={handleChangeRowsPerPage}
       />
-
     </div>
   );
 }

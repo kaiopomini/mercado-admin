@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from "react";
+
+import { ApiNotify } from "../components/ApiNotify";
 
 export enum NotifyTypesEnum {
   Error = "error",
@@ -6,31 +14,30 @@ export enum NotifyTypesEnum {
   Info = "info",
   Success = "success",
 }
-
-interface ApiNotifyContextData {
+export interface ApiNotifyContextData {
   removeNotification: () => void;
   addNotification: (message: string, type: NotifyTypesEnum) => void;
   notificationMessage: string;
   severity: NotifyTypesEnum | undefined;
-
 }
 
 type ApiNotifyProviderProps = {
   children: ReactNode;
 };
 
-const ApiNotifyContext = createContext<ApiNotifyContextData>({} as ApiNotifyContextData);
+const ApiNotifyContext = createContext<ApiNotifyContextData>(
+  {} as ApiNotifyContextData
+);
 
 function ApiNotifyProvider({ children }: ApiNotifyProviderProps) {
-  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState("");
   const [severity, setSeverity] = useState<NotifyTypesEnum>();
 
-
-  const removeNotification = () =>  {
-    setNotificationMessage('')
+  const removeNotification = () => {
+    setNotificationMessage("");
   };
 
-  const addNotification = (message: string, severity?: NotifyTypesEnum)  => {
+  const addNotification = (message: string, severity?: NotifyTypesEnum) => {
     setNotificationMessage(message);
     if (severity) {
       setSeverity(severity);
@@ -39,17 +46,18 @@ function ApiNotifyProvider({ children }: ApiNotifyProviderProps) {
 
   const contextValue = {
     removeNotification: useCallback(() => removeNotification(), []),
-    addNotification: useCallback((message, type) => addNotification(message, type), []),
+    addNotification: useCallback(
+      (message, type) => addNotification(message, type),
+      []
+    ),
     notificationMessage,
-    severity
+    severity,
   };
 
-
   return (
-    <ApiNotifyContext.Provider
-      value={{...contextValue}}
-    >
+    <ApiNotifyContext.Provider value={{ ...contextValue }}>
       {children}
+      <ApiNotify />
     </ApiNotifyContext.Provider>
   );
 }

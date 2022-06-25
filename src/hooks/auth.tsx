@@ -1,11 +1,11 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { api } from "../services/api";
+import { api } from "../services/api.service";
 import {
   login,
   logout,
   signIn as signInService,
   isAuthenticated as isAuthenticatedService,
-} from "../services/authService";
+} from "../services/auth.service";
 
 export type User = {
   id: number;
@@ -49,15 +49,14 @@ function AuthProvider({ children }: AuthProviderProps) {
         setUser({
           ...dataUser.payload,
         } as User);
-        
       }
-    } catch (error) {
-      
-    }
-
+    } catch (error) {}
   }
 
-  async function signIn(email: string, password: string): Promise<LoginResponse> {
+  async function signIn(
+    email: string,
+    password: string
+  ): Promise<LoginResponse> {
     try {
       setLoading(true);
 
@@ -66,12 +65,14 @@ function AuthProvider({ children }: AuthProviderProps) {
       if (token) {
         login(token);
       }
-      return {message: 'Login realizado com sucesso.', success: true};
+      return { message: "Login realizado com sucesso.", success: true };
     } catch (error: any) {
       const response = {
-        message: error?.response?.data?.message || 'Não foi possível realizar o login.',
-        success: false
-      }
+        message:
+          error?.response?.data?.message ||
+          "Não foi possível realizar o login.",
+        success: false,
+      };
       return response;
     } finally {
       setLoading(false);

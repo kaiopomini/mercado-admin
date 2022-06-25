@@ -1,0 +1,115 @@
+#new-product {
+  display: flex;
+  flex-direction: column;
+  .MuiFormHelperText-root {
+    margin-top: 0px;
+    margin-bottom: 4px;
+  }
+
+  .form-container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    margin-top: 16px;
+    background-color: var(--main-bg);
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+  }
+
+  .top-content {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+
+    .main-input-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      margin-right: 30px;
+
+      .line-input {
+        display: flex;
+        justify-content: space-between;
+
+        & > :nth-child(2) {
+          margin-left: 8px;
+        }
+        .edit {
+          background-color: transparent;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          margin-top: 8px;
+
+          &:hover {
+            color: var(--main-color);
+          }
+          &.red {
+            color: var(--main-color-red);
+          }
+        }
+      }
+    }
+    .upload-image-container {
+      display: flex;
+
+      justify-content: center;
+    }
+  }
+  .bottom-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+
+    .line-input {
+      display: flex;
+      justify-content: space-between;
+
+      & > :nth-child(n + 2) {
+        margin-left: 8px;
+      }
+      &.quantity-container {
+        & > :nth-child(1) {
+          flex: 3;
+        }
+        & > :nth-child(2) {
+          flex: 6;
+        }
+        & > :nth-child(3) {
+          flex: 2;
+          justify-content: flex-end;
+          align-items: initial;
+          min-width: 244px;
+          & .MuiTypography-root{
+            padding-top: 8px;
+          }
+        }
+      }
+    }
+  }
+
+  .actions-container {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .delete-button {
+      margin-right: 16px;
+    }
+    button {
+      width: 140px;
+      height: var(--button-height);
+    }
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+  }
+}

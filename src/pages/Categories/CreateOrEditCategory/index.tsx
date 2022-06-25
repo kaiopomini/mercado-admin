@@ -33,7 +33,7 @@ export interface IIndexable {
   [key: string]: any;
 }
 
-export function CreateOrEditProduct() {
+export function CreateOrEditCategory() {
   const schema = Yup.object().shape({
     barCode: Yup.string().required("Codigo de barras é obrigatório"),
     name: Yup.string()

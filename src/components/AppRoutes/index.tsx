@@ -7,6 +7,8 @@ import { CreateOrEditProduct } from "../../pages/Products/CreateOrEditProduct";
 import { Layout } from "../Layout";
 import { RequireAuth } from "../RequireAuth";
 import { CreateOrEditCustomers } from "../../pages/Customers/CreateOrEditCustomer";
+import { Categories } from "../../pages/Categories";
+import { CreateOrEditCategory } from "../../pages/Categories/CreateOrEditCategory";
 
 export function AppRoutes() {
   return (
@@ -27,6 +29,33 @@ export function AppRoutes() {
             </RequireAuth>
           }
         />
+
+        <Route path="categorias">
+          <Route
+            index
+            element={
+              <RequireAuth roles={["admin"]}>
+                <Categories />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path=":categoryId"
+            element={
+              <RequireAuth roles={["admin"]}>
+                <CreateOrEditCategory />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="novo"
+            element={
+              <RequireAuth roles={["admin"]}>
+                <CreateOrEditCategory />
+              </RequireAuth>
+            }
+          />
+        </Route>
 
         <Route path="usuarios">
           <Route

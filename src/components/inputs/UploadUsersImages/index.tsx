@@ -7,7 +7,7 @@ import { Delete } from "@material-ui/icons";
 
 import noImage from "../../../assets/img/user-no-image.png";
 import "./styles.scss";
-import { uploadUserImage } from "../../../services/upload";
+import { uploadUserImage } from "../../../services/upload.service";
 
 interface Props {
   setValue: (url: string) => void;
@@ -81,9 +81,11 @@ export const UploadUsersImages = ({
     maxSize: 2000000,
   });
 
-  const setDefaultSrc = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const setDefaultSrc = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
     event.currentTarget.src = noImage;
-  }
+  };
 
   const renderPreviewImage = () => {
     if (imageUrl && imageUrl !== "default" && !selectPreviewFileUrl) {
@@ -124,10 +126,10 @@ export const UploadUsersImages = ({
     <div
       id="upload-users-images"
       className={viewMode ? "view-mode" : ""}
-      { ...(viewMode ? {} : getRootProps()) }
+      {...(viewMode ? {} : getRootProps())}
     >
       {renderPreviewImage()}
-      {imageUrl && imageUrl !== "default" && !viewMode &&(
+      {imageUrl && imageUrl !== "default" && !viewMode && (
         <button
           className={"delete-btn"}
           onClick={(event) => handleClearImage(event)}

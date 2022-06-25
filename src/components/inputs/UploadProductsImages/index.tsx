@@ -7,7 +7,7 @@ import { Delete } from "@material-ui/icons";
 
 import noImage from "../../../assets/img/product-no-image.png";
 import "./styles.scss";
-import { uploadProductImage } from "../../../services/upload";
+import { uploadProductImage } from "../../../services/upload.service";
 
 interface Props {
   setValue: (url: string) => void;
@@ -40,7 +40,7 @@ export const UploadProductsImages = ({ setValue, imageUrl }: Props) => {
       const res = await uploadProductImage(file, (event) => {
         setProgress(Math.round((90 * event.loaded) / event.total));
       });
-      setProgress(100)
+      setProgress(100);
 
       setValue(res.data.payload?.url);
     } catch (error) {
@@ -76,9 +76,11 @@ export const UploadProductsImages = ({ setValue, imageUrl }: Props) => {
     maxSize: 2000000,
   });
 
-  const setDefaultSrc = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const setDefaultSrc = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
     event.currentTarget.src = noImage;
-  }
+  };
 
   const renderPreviewImage = () => {
     if (imageUrl && imageUrl !== "default" && !selectPreviewFileUrl) {

@@ -3,39 +3,34 @@ import { Link, useNavigate } from "react-router-dom";
 
 import "./styles.scss";
 
+import { toCurrency } from "../../utils/numberFormat";
 import { Button } from "@material-ui/core";
-import {
-  getCustomersList,
-  ICustomerList,
-} from "../../services/customers.service";
+import { getProductList, IProductList } from "../../services/products.service";
 import {
   Search,
   Close,
+  Edit,
   Add,
   ArrowDropUp,
   ArrowDropDown,
-  VisibilityOutlined,
 } from "@material-ui/icons";
 
-import { CheckCircleOutline } from "@mui/icons-material";
-
-import noImage from "../../assets/img/user-no-image.png";
-import { cpfFormat } from "../../utils/stringFormat";
+import noImage from "../../assets/img/product-no-image.png";
 import { Table } from "../../components/Table";
-
 import { Column, TypesIds } from "../../entities/TableFields";
 
 interface Data {
   actions: ReactNode;
-  customerField: ReactNode;
-  emailField: ReactNode;
-  phoneField: string;
-  cpfField: string;
-  updatedAtField: string;
+  product: ReactNode;
+  price: number;
+  active: string;
+  code: string;
+  quantity: number;
+  inventoryControl: string;
   id: string;
 }
 
-function createData(customer: ICustomerList): Data {
+function createData(item: IProductList): Data {
   const setDefaultSrc = (
     event: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
@@ -44,63 +39,54 @@ function createData(customer: ICustomerList): Data {
 
   const {
     id,
-    avatar,
+    image,
     name,
-    surname,
-    email,
-    validated_email,
-    cpf,
-    updated_at,
-    phones,
-  } = customer;
+    active,
+    quantity,
+    controlled_inventory,
+    price,
+    gtin_code,
+  } = item;
 
   const actions = (
-    <div className="customer-edit">
-      <Link to={"/usuarios/" + id}>
-        <VisibilityOutlined />
-        Visualizar
+    <div className="product-edit">
+      <Link to={"/categorias/" + id}>
+        <Edit />
+        Editar
       </Link>
     </div>
   );
 
-  const customerField = (
-    <div className="customer-list-img">
+  const product = (
+    <div className="product-list-img">
       <img
-        src={avatar && avatar !== "default" ? avatar : noImage}
-        alt={"imagem avatar usuário" + name}
+        src={image && image !== "default" ? image : noImage}
+        alt={"imagem produto " + name}
         onError={setDefaultSrc}
       />
-      <p>{`${name} ${surname}`}</p>
+      <p>{name}</p>
     </div>
   );
 
-  const emailField = (
-    <div className="customer-email">
-      <p>{email}</p>
-      {validated_email && <CheckCircleOutline />}
-    </div>
-  );
+  const status = active ? "Ativo" : "Inativo";
 
-  const cpfField = cpf || "-";
-
-  const phoneField = phones[0]?.phone_number || "-";
-
-  const updatedAtField = new Date(updated_at).toDateString() || "-";
+  const inventoryControl = controlled_inventory ? "Ativo" : "Inativo";
 
   return {
     actions,
-    customerField,
-    emailField,
-    cpfField,
-    updatedAtField,
-    phoneField,
+    product,
+    price,
+    active: status,
+    code: gtin_code,
+    quantity,
+    inventoryControl,
     id,
   };
 }
 
-export function Customers() {
+export function Categories() {
   const [page, setPage] = useState(1);
-  const [rows, setRows] = useState([] as any);
+  const [rows, setRows] = useState<Data[]>([]);
   const [search, setSearch] = useState("");
   const [perPage, setPerPage] = useState(10);
   const [total, setTotal] = useState(10);
@@ -118,8 +104,8 @@ export function Customers() {
   async function loadData(clear = false) {
     setIsLoading(true);
     const data = clear
-      ? await getCustomersList(undefined, undefined, perPage, sort)
-      : await getCustomersList(search, page, perPage, sort);
+      ? await getProductList(undefined, undefined, perPage, sort)
+      : await getProductList(search, page, perPage, sort);
 
     if (data) {
       setTotal(data.total);
@@ -128,7 +114,7 @@ export function Customers() {
 
       const rowsRes =
         data &&
-        data.payload.map((item: ICustomerList) => {
+        data.payload.map((item) => {
           return createData(item);
         });
       if (rowsRes) {
@@ -184,36 +170,25 @@ export function Customers() {
     sort === "asc" ? setSort("desc") : setSort("asc");
   };
 
-  const columns: Column<TypesIds["customers"]>[] = [
+  const columns: Column<TypesIds["categories"]>[] = [
     { id: "actions", label: "Ações", minWidth: 100 },
     {
-      id: "customerField",
-      label: "Usuário",
-      minWidth: 300,
+      id: "category",
+      label: "Categoria",
+      minWidth: 350,
       icon: sort === "asc" ? <ArrowDropDown /> : <ArrowDropUp />,
       action: changeSort,
     },
     {
-      id: "emailField",
-      label: "Email",
-      minWidth: 200,
-    },
-    {
-      id: "phoneField",
-      label: "Telefone",
-      minWidth: 200,
-    },
-    {
-      id: "cpfField",
-      label: "Cpf",
-      minWidth: 140,
-      format: (value: string) => cpfFormat(value),
+      id: "active",
+      label: "Status",
+      minWidth: 60,
     },
   ];
 
   return (
-    <div id="userList">
-      <h2>Usuários</h2>
+    <div id="productList">
+      <h2>Produtos</h2>
       <div className="action-bar">
         <div className="search-bar">
           <form onSubmit={doSearch} className="search">
@@ -233,10 +208,10 @@ export function Customers() {
           </form>
           <div className="select-filter"></div>
         </div>
-        <div className="new-customer">
+        <div className="new-product">
           <Button
             variant="contained"
-            onClick={() => navigate("/usuarios/novo")}
+            onClick={() => navigate("/categorias/novo")}
           >
             <Add />
             Cadastrar

@@ -9,12 +9,14 @@ import {
   CircularProgress,
   TablePagination,
 } from "@mui/material";
-import { Column } from "../../pages/Products";
+import { Column, TypesIds } from "../../entities/TableFields";
 
 import "./styles.scss";
 
 interface Props {
-  columns: Column[];
+  columns: Column<
+    TypesIds["categories"] | TypesIds["customers"] | TypesIds["products"]
+  >[];
   isLoading: boolean;
   rows: any[];
   total: number;
@@ -22,6 +24,7 @@ interface Props {
   page: number;
   handleChangePage: (event: unknown, newPage: number) => void;
   handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  entityName?: string;
 }
 
 export function Table({
@@ -33,10 +36,11 @@ export function Table({
   page,
   handleChangePage,
   handleChangeRowsPerPage,
+  entityName = "item",
 }: Props) {
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer sx={{ height: "54vh" }} id="table">
+    <Paper id="table">
+      <TableContainer className="paper-table">
         <MuiTable stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -93,7 +97,7 @@ export function Table({
                 <TableBody>
                   <tr>
                     <td colSpan={5} className="message">
-                      Nenhum produto encontrado.
+                      Nenhum {entityName} encontrado.
                     </td>
                   </tr>
                 </TableBody>
