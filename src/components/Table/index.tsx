@@ -1,75 +1,123 @@
-import {Key, useState} from 'react'
+import {
+  Paper,
+  TableContainer,
+  Table as MuiTable,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  CircularProgress,
+  TablePagination,
+} from "@mui/material";
+import { Column } from "../../pages/Products";
 
-import './styles.scss'
+import "./styles.scss";
 
+interface Props {
+  columns: Column[];
+  isLoading: boolean;
+  rows: any[];
+  total: number;
+  perPage: number;
+  page: number;
+  handleChangePage: (event: unknown, newPage: number) => void;
+  handleChangeRowsPerPage: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-export function Table(props: any) {
-
-    const initDataShow = props.limit && props.bodyData ? props.bodyData.slice(0, Number(props.limit)) : props.bodyData
-
-    const [dataShow, setDataShow] = useState(initDataShow)
-
-    let pages:any = 1
-
-    let range = [] as any
-
-    if (props.limit !== undefined) {
-        let page = Math.floor(props.bodyData.length / Number(props.limit))
-        pages = props.bodyData.length % Number(props.limit) === 0 ? page : page + 1
-        range = Array(pages).keys() as any
-        
-    }
-
-    const [currPage, setCurrPage] = useState(0)
-
-    const selectPage = (page: any) => {
-        const start = Number(props.limit) * page
-        const end = start + Number(props.limit)
-
-        setDataShow(props.bodyData.slice(start, end))
-
-        setCurrPage(page)
-    }
-
-    return (
-        <div>
-            <div className="table-wrapper">
-                <table>
-                    {
-                        props.headData && props.renderHead ? (
-                            <thead>
-                                <tr>
-                                    {
-                                        props.headData?.map((item: any, index: any) => props.renderHead(item, index))
-                                    }
-                                </tr>
-                            </thead>
-                        ) : null
-                    }
-                    {
-                        props.bodyData && props.renderBody ? (
-                            <tbody>
-                                {
-                                    dataShow.map((item: any, index: any) => props.renderBody(item, index))
-                                }
-                            </tbody>
-                        ) : null
-                    }
-                </table>
-            </div>
-            {
-                pages > 1 ? (
-                    <div className="table__pagination">
-                        {
-                            range.map((item: number, index: Key | null | undefined) => (
-                                <div key={index} className={`table__pagination-item ${currPage === index ? 'active' : ''}`} onClick={() => selectPage(index)}>
-                                    {item + 1}
-                                </div>
-                            ))
-                        }
-                    </div>
-                ) : null
-            }
-        </div>
-    )
+export function Table({
+  columns,
+  isLoading,
+  rows,
+  total,
+  perPage,
+  page,
+  handleChangePage,
+  handleChangeRowsPerPage,
+}: Props) {
+  return (
+    <Paper sx={{ width: "100%", overflow: "hidden" }}>
+      <TableContainer sx={{ height: "54vh" }} id="table">
+        <MuiTable stickyHeader aria-label="sticky table">
+          <TableHead>
+            <TableRow>
+              {columns.map((column) => (
+                <TableCell
+                  key={column.id}
+                  align={column.align}
+                  style={{ minWidth: column.minWidth }}
+                  onClick={column.action}
+                  sortDirection={"asc"}
+                >
+                  <div className={"table-title" + (column.action && " action")}>
+                    {column.label}
+                    {column.icon && column.icon}
+                  </div>
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          {isLoading ? (
+            <TableBody>
+              <tr>
+                <td colSpan={5} className="loading">
+                  <CircularProgress color="inherit" />
+                </td>
+              </tr>
+            </TableBody>
+          ) : (
+            <>
+              {rows?.length > 0 ? (
+                <TableBody>
+                  {rows.map((row: any, index: number) => {
+                    return (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        tabIndex={-1}
+                        key={row.id}
+                        id={"row" + index}
+                      >
+                        {columns.map((column) => {
+                          const value = row[column.id];
+                          return (
+                            <TableCell key={column.id} align={column.align}>
+                              {column.format ? column.format(value) : value}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              ) : (
+                <TableBody>
+                  <tr>
+                    <td colSpan={5} className="message">
+                      Nenhum produto encontrado.
+                    </td>
+                  </tr>
+                </TableBody>
+              )}
+            </>
+          )}
+        </MuiTable>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        component="div"
+        count={total}
+        rowsPerPage={perPage}
+        align="center"
+        labelRowsPerPage="Itens por página:"
+        page={page - 1}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        labelDisplayedRows={({ from, to, count }) => {
+          return `${from}-${to} de ${count !== -1 ? count : `mais que ${to}`}`;
+        }}
+        showFirstButton
+        showLastButton
+      />
+    </Paper>
+  );
 }

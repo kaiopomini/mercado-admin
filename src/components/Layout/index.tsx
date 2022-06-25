@@ -8,10 +8,10 @@ import { useAuth } from "../../hooks/auth";
 import "./styles.scss";
 
 export function Layout() {
-  const { validateLogin, user } = useAuth();
+  const { updateUser, user } = useAuth();
 
   useEffect(() => {
-    validateLogin();
+    updateUser();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

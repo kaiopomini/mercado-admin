@@ -3,14 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 
 import "./styles.scss";
 
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
 import { toCurrency } from "../../utils/numberFormat";
 import { Button } from "@material-ui/core";
 import { getProductList, IProductList } from "../../services/products";
@@ -24,10 +16,27 @@ import {
 } from "@material-ui/icons";
 
 import noImage from "../../assets/img/product-no-image.png";
-import { CircularProgress } from "@mui/material";
+import { Table } from "../../components/Table";
 
-interface Column {
-  id: "actions" | "product" | "price" | "active" | "code" | "inventoryControl" | "quantity";
+type typesIds = {
+  products:
+    | "actions"
+    | "product"
+    | "price"
+    | "active"
+    | "code"
+    | "inventoryControl"
+    | "quantity";
+  users:
+    | "actions"
+    | "customerField"
+    | "emailField"
+    | "cpfField"
+    | "phoneField"
+    | "updatedAtField";
+};
+export interface Column {
+  id: typesIds['products'] | typesIds['users'];
   label: string;
   minWidth?: number;
   align?: "right";
@@ -47,13 +56,26 @@ interface Data {
   id: string;
 }
 
-function createData(
-  item : IProductList
-): Data {
-  const setDefaultSrc = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+
+function createData(item: IProductList ): Data {
+  
+  const setDefaultSrc = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
     event.currentTarget.src = noImage;
-  }
-  const {id, image, name, active, quantity, controlled_inventory, price, gtin_code} = item
+  };
+
+  const {
+    id,
+    image,
+    name,
+    active,
+    quantity,
+    controlled_inventory,
+    price,
+    gtin_code,
+  } = item;
+  
   const actions = (
     <div className="product-edit">
       <Link to={"/produtos/" + id}>
@@ -77,14 +99,22 @@ function createData(
   const status = active ? "Ativo" : "Inativo";
 
   const inventoryControl = controlled_inventory ? "Ativo" : "Inativo";
-  
 
-  return { actions, product, price, active: status, code: gtin_code, quantity, inventoryControl, id };
+  return {
+    actions,
+    product,
+    price,
+    active: status,
+    code: gtin_code,
+    quantity,
+    inventoryControl,
+    id,
+  };
 }
 
 export function Products() {
   const [page, setPage] = useState(1);
-  const [rows, setRows] = useState([] as any);
+  const [rows, setRows] = useState<Data[]>([]);
   const [search, setSearch] = useState("");
   const [perPage, setPerPage] = useState(10);
   const [total, setTotal] = useState(10);
@@ -168,7 +198,7 @@ export function Products() {
     sort === "asc" ? setSort("desc") : setSort("asc");
   };
 
-  const columns: readonly Column[] = [
+  const columns: Column[] = [
     { id: "actions", label: "Ações", minWidth: 100 },
     {
       id: "product",
@@ -202,7 +232,7 @@ export function Products() {
       id: "code",
       label: "Código de barras",
       minWidth: 150,
-      align: "right", 
+      align: "right",
     },
   ];
 
@@ -238,96 +268,18 @@ export function Products() {
           </Button>
         </div>
       </div>
-      <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ height: "54vh" }} className="table">
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    align={column.align}
-                    style={{ minWidth: column.minWidth }}
-                    onClick={column.action}
-                    sortDirection={"asc"}
-                  >
-                    <div
-                      className={"table-title" + (column.action && " action")}
-                    >
-                      {column.label}
-                      {column.icon && column.icon}
-                    </div>
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            {isLoading ? (
-              <TableBody>
-                <tr>
-                  <td colSpan={5} className="loading">
-                    <CircularProgress color="inherit" />
-                  </td>
-                </tr>
-              </TableBody>
-            ) : (
-              <>
-                {rows?.length > 0 ? (
-                  <TableBody>
-                    {rows.map((row: Data, index: number) => {
-                      return (
-                        <TableRow
-                          hover
-                          role="checkbox"
-                          tabIndex={-1}
-                          key={row.id}
-                          id={"row" + index}
-                        >
-                          {columns.map((column) => {
-                            const value = row[column.id];
-                            return (
-                              <TableCell key={column.id} align={column.align}>
-                                {column.format
-                                  ? column.format(value)
-                                  : value}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                ) : (
-                  <TableBody>
-                    <tr>
-                      <td colSpan={5} className="message">
-                        Nenhum produto encontrado.
-                      </td>
-                    </tr>
-                  </TableBody>
-                )}
-              </>
-            )}
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          component="div"
-          count={total}
-          rowsPerPage={perPage}
-          align="center"
-          labelRowsPerPage="Itens por página:"
-          page={page - 1}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelDisplayedRows={({ from, to, count }) => {
-            return `${from}-${to} de ${
-              count !== -1 ? count : `mais que ${to}`
-            }`;
-          }}
-          showFirstButton
-          showLastButton
-        />
-      </Paper>
+
+      <Table
+      columns={columns}
+      isLoading={isLoading}
+      rows={rows}
+      total={total}
+      perPage={perPage}
+      page={page}
+      handleChangePage={handleChangePage}
+      handleChangeRowsPerPage={handleChangeRowsPerPage}
+      />
+
     </div>
   );
 }

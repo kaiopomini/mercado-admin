@@ -28,7 +28,7 @@ interface AuthContextData {
   signIn: (email: string, password: string) => Promise<LoginResponse>;
   signOut: () => Promise<void>;
   isAuthenticated: () => boolean;
-  validateLogin: () => void;
+  updateUser: () => void;
 }
 
 type AuthProviderProps = {
@@ -42,20 +42,19 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   const [loading, setLoading] = useState(false);
 
-  async function validateLogin() {
+  async function updateUser() {
     try {
       const dataUser = (await api.get("me")).data;
       if (dataUser.success) {
         setUser({
           ...dataUser.payload,
         } as User);
-        return true;
+        
       }
     } catch (error) {
-      return false;
+      
     }
 
-    return false;
   }
 
   async function signIn(email: string, password: string): Promise<LoginResponse> {
@@ -90,7 +89,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
   return (
     <AuthContext.Provider
-      value={{ user, signIn, signOut, loading, isAuthenticated, validateLogin }}
+      value={{ user, signIn, signOut, loading, isAuthenticated, updateUser }}
     >
       {children}
     </AuthContext.Provider>

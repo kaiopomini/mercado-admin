@@ -3,14 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 
 import "./styles.scss";
 
-import Paper from "@mui/material/Paper";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TablePagination from "@mui/material/TablePagination";
-import TableRow from "@mui/material/TableRow";
 import { Button } from "@material-ui/core";
 import { getCustomersList, ICustomerList } from "../../services/customers";
 import {
@@ -19,14 +11,14 @@ import {
   Add,
   ArrowDropUp,
   ArrowDropDown,
-  VisibilityOutlined
+  VisibilityOutlined,
 } from "@material-ui/icons";
 
 import { CheckCircleOutline } from "@mui/icons-material";
 
 import noImage from "../../assets/img/user-no-image.png";
-import { CircularProgress } from "@mui/material";
 import { cpfFormat } from "../../utils/stringFormat";
+import { Table } from "../../components/Table";
 
 interface Column {
   id:
@@ -55,13 +47,23 @@ interface Data {
 }
 
 function createData(customer: ICustomerList): Data {
-
-  const setDefaultSrc = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const setDefaultSrc = (
+    event: React.SyntheticEvent<HTMLImageElement, Event>
+  ) => {
     event.currentTarget.src = noImage;
-  }
+  };
 
-  const { id, avatar, name, surname, email, validated_email, cpf, updated_at, phones } =
-    customer;
+  const {
+    id,
+    avatar,
+    name,
+    surname,
+    email,
+    validated_email,
+    cpf,
+    updated_at,
+    phones,
+  } = customer;
 
   const actions = (
     <div className="customer-edit">
@@ -96,7 +98,15 @@ function createData(customer: ICustomerList): Data {
 
   const updatedAtField = new Date(updated_at).toDateString() || "-";
 
-  return { actions, customerField, emailField, cpfField, updatedAtField, phoneField, id };
+  return {
+    actions,
+    customerField,
+    emailField,
+    cpfField,
+    updatedAtField,
+    phoneField,
+    id,
+  };
 }
 
 export function Customers() {
@@ -185,7 +195,7 @@ export function Customers() {
     sort === "asc" ? setSort("desc") : setSort("asc");
   };
 
-  const columns: readonly Column[] = [
+  const columns: Column[] = [
     { id: "actions", label: "Ações", minWidth: 100 },
     {
       id: "customerField",
@@ -244,94 +254,17 @@ export function Customers() {
           </Button>
         </div>
       </div>
-      <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ height: "54vh" }} className="table">
-          <Table stickyHeader aria-label="sticky table">
-            <TableHead>
-              <TableRow>
-                {columns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    align={column.align}
-                    style={{ minWidth: column.minWidth }}
-                    onClick={column.action}
-                    sortDirection={"asc"}
-                  >
-                    <div
-                      className={"table-title" + (column.action && " action")}
-                    >
-                      {column.label}
-                      {column.icon && column.icon}
-                    </div>
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            {isLoading ? (
-              <TableBody>
-                <tr>
-                  <td colSpan={5} className="loading">
-                    <CircularProgress color="inherit" />
-                  </td>
-                </tr>
-              </TableBody>
-            ) : (
-              <>
-                {rows?.length > 0 ? (
-                  <TableBody>
-                    {rows.map((row: Data, index: number) => {
-                      return (
-                        <TableRow
-                          hover
-                          role="checkbox"
-                          tabIndex={-1}
-                          key={row.id}
-                          id={"row" + index}
-                        >
-                          {columns.map((column) => {
-                            const value = row[column.id];
-                            return (
-                              <TableCell key={column.id} align={column.align}>
-                                {column.format ? column.format(value) : value}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                ) : (
-                  <TableBody>
-                    <tr>
-                      <td colSpan={5} className="message">
-                        Nenhum usuário encontrado.
-                      </td>
-                    </tr>
-                  </TableBody>
-                )}
-              </>
-            )}
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 50, 100]}
-          component="div"
-          count={total}
-          rowsPerPage={perPage}
-          align="center"
-          labelRowsPerPage="Itens por página:"
-          page={page - 1}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelDisplayedRows={({ from, to, count }) => {
-            return `${from}-${to} de ${
-              count !== -1 ? count : `mais que ${to}`
-            }`;
-          }}
-          showFirstButton
-          showLastButton
-        />
-      </Paper>
+
+      <Table
+        columns={columns}
+        isLoading={isLoading}
+        rows={rows}
+        total={total}
+        perPage={perPage}
+        page={page}
+        handleChangePage={handleChangePage}
+        handleChangeRowsPerPage={handleChangeRowsPerPage}
+      />
     </div>
   );
 }
