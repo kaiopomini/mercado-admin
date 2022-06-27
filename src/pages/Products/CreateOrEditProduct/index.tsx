@@ -1,10 +1,12 @@
 import {
   Button,
+  Checkbox,
   CircularProgress,
   FormControl,
   FormControlLabel,
   FormHelperText,
   InputLabel,
+  ListItemText,
   MenuItem,
   Select,
   Switch,
@@ -15,7 +17,7 @@ import { useNavigate, useParams } from "react-router";
 import { Edit, ArrowBack } from "@material-ui/icons";
 
 import { CurrencyInput } from "../../../components/CurrencyInput";
-import { UploadProductsImages } from "../../../components/inputs/UploadProductsImages";
+import { UploadImages } from "../../../components/inputs/UploadImages";
 import {
   createProduct,
   deleteProduct,
@@ -29,6 +31,10 @@ import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { NotifyTypesEnum, useApiNotify } from "../../../hooks/apiNotify";
+import {
+  getInputLabelsCategoryList,
+  IInputLablesCategoryList,
+} from "../../../services/categories.service";
 export interface IIndexable {
   [key: string]: any;
 }
@@ -60,6 +66,7 @@ export function CreateOrEditProduct() {
       .min(0, "A quantidade não pode ser negativa"),
     quantityType: Yup.string().required("Unidade é obrigatório"),
     image: Yup.string().default("").nullable(),
+    categories: Yup.array().of(Yup.string().required("Categoria obrigatória")),
   });
 
   const {
@@ -82,6 +89,13 @@ export function CreateOrEditProduct() {
   const [clicked, setClicked] = useState("");
   const [data, setData] = useState<IProductPost>();
   const [newProductId, setNewProductId] = useState("");
+  const [categoryList, setCategoryList] = useState<IInputLablesCategoryList[]>(
+    []
+  );
+  const [selectedCategoryList, setSelectedCategoryList] = useState<
+    IInputLablesCategoryList[]
+  >([]);
+
   const { productId } = useParams();
 
   const navigate = useNavigate();
@@ -154,6 +168,14 @@ export function CreateOrEditProduct() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    console.log("Category list", categoryList);
+    console.log("selectedCategoryList", selectedCategoryList);
+    console.log("watch", watch("categories"));
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryList, selectedCategoryList]);
+
   function setImageUrl(url: string): void {
     setValue("image", url);
   }
@@ -161,8 +183,13 @@ export function CreateOrEditProduct() {
   async function loadData() {
     setIsLoading(true);
     if (productId) {
-      const data = await getProduct(productId);
-      const product = data?.payload;
+      const dataProducts = await getProduct(productId);
+      const dataCategories = (await getInputLabelsCategoryList())?.payload;
+      if (dataCategories && dataCategories.length > 0) {
+        setCategoryList(dataCategories);
+      }
+
+      const product = dataProducts?.payload;
       if (product) {
         const {
           active,
@@ -176,7 +203,21 @@ export function CreateOrEditProduct() {
           controlled_inventory,
           quantity,
           quantity_type,
+          categories,
         } = product;
+        const categoriesIds = categories?.map((category) => category.id);
+
+        if (categories && categories.length > 0) {
+          categories.forEach((category) => {
+            const categoryToAdd = dataCategories?.find(
+              (categoryListItem) => categoryListItem.id === category.id
+            );
+            if (categoryToAdd) {
+              setSelectedCategoryList((value) => [...value, categoryToAdd]);
+            }
+          });
+        }
+
         const data = {
           id,
           description,
@@ -189,6 +230,7 @@ export function CreateOrEditProduct() {
           controlledInventory: controlled_inventory,
           quantity,
           quantityType: quantity_type,
+          categories: categoriesIds,
         };
 
         setData(data);
@@ -202,6 +244,15 @@ export function CreateOrEditProduct() {
     }
     setIsLoading(false);
   }
+  const handleChangeCategory = (
+    fieldName: string,
+    value: IInputLablesCategoryList[]
+  ) => {
+    const arrayValuesIds = value.map((item) => item.id);
+    setValue(fieldName, arrayValuesIds);
+    console.log("selectedList", selectedCategoryList);
+    setSelectedCategoryList(value);
+  };
 
   return (
     <div id="new-product">
@@ -323,9 +374,10 @@ export function CreateOrEditProduct() {
                 </div>
               </div>
               <div className="upload-image-container">
-                <UploadProductsImages
+                <UploadImages
                   setValue={setImageUrl}
                   imageUrl={watch("image")}
+                  type={"products"}
                 />
               </div>
             </div>
@@ -352,7 +404,7 @@ export function CreateOrEditProduct() {
                   error={errors.quantityType}
                   sx={{ m: 0, minWidth: 120 }}
                 >
-                  <InputLabel id="select-input"> Unidade</InputLabel>
+                  <InputLabel id="select-input">Unidade</InputLabel>
                   <Controller
                     name="quantityType"
                     control={control}
@@ -366,7 +418,7 @@ export function CreateOrEditProduct() {
                           error={!!errors.quantityType}
                           onChange={(e) => setValue(field.name, e.target.value)}
                         >
-                          <MenuItem value={undefined}>
+                          <MenuItem value={""}>
                             <em>Selecione</em>
                           </MenuItem>
                           <MenuItem value={"kg"}>Kilos (Kg)</MenuItem>
@@ -397,8 +449,62 @@ export function CreateOrEditProduct() {
                   label="Controle de estoque"
                 />
               </div>
+              <div className="line-input category-container">
+                <FormControl
+                  size="small"
+                  error={errors.categories}
+                  sx={{ m: 0, minWidth: 120 }}
+                >
+                  <InputLabel id="select-input">Categorias</InputLabel>
+                  <Controller
+                    name="categories"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <Select
+                          labelId="select-input"
+                          size="small"
+                          value={selectedCategoryList}
+                          label="Categorias"
+                          error={!!errors.categories}
+                          multiple
+                          onChange={(e) => {
+                            console.log("target.value", e.target.value);
+                            // @ts-ignore
+                            handleChangeCategory(field.name, e.target.value);
+                          }}
+                          renderValue={(selected) =>
+                            selected
+                              .map(
+                                (item: any) =>
+                                  categoryList?.find(
+                                    (categoryItem) =>
+                                      categoryItem.id === item.id
+                                  )?.name
+                              )
+                              .join(", ")
+                          }
+                        >
+                          {categoryList.map((category) => (
+                            // @ts-ignore
+                            <MenuItem key={category.id} value={category}>
+                              <Checkbox
+                                checked={
+                                  selectedCategoryList.indexOf(category) > -1
+                                }
+                              />
+                              <ListItemText primary={category.name} />
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        <FormHelperText>
+                          {errors.categories?.message || " "}
+                        </FormHelperText>
+                      </>
+                    )}
+                  />
+                </FormControl>
 
-              <div className="line-input">
                 <FormControlLabel
                   control={
                     <Controller

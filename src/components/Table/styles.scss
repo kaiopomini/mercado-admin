@@ -1,8 +1,29 @@
 #table {
-  position: relative;
   min-width: 100%;
+
   .paper-table {
-    max-height: 600px;
+    height: 500px;
+    position: relative;
+
+    .loading-table {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      text-align: center;
+      transform: translate(-50%);
+      color: var(--main-color);
+    }
+
+    .message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%);
+      color: var(--main-color);
+      width: 100%;
+      text-align: center;
+    }
   }
 
   .table-title {
@@ -15,100 +36,6 @@
       &:hover {
         color: var(--main-color);
       }
-    }
-  }
-  .loading {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%);
-    color: var(--main-color);
-  }
-
-  .message {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%);
-    color: var(--main-color);
-    width: 100%;
-    text-align: center;
-  }
-
-  // Product styles
-  .product-edit {
-    color: var(--txt-color);
-    a {
-      display: flex;
-      align-items: center;
-      svg {
-        margin-right: 8px;
-      }
-    }
-  }
-
-  td {
-    padding: 4px 16px;
-  }
-
-  .product-list-img {
-    display: flex;
-    position: relative;
-    align-items: center;
-    overflow: hidden;
-
-    & > img {
-      width: 48px;
-      height: 48px;
-      border-radius: 8px;
-      object-fit: contain;
-      margin-right: 10px;
-    }
-  }
-
-  // Customer styles
-  .customer-edit {
-    color: var(--txt-color);
-    a {
-      display: flex;
-      align-items: center;
-      svg {
-        margin-right: 8px;
-      }
-    }
-  }
-
-  td {
-    padding: 4px 16px;
-  }
-
-  .customer-list-img {
-    display: flex;
-    position: relative;
-    align-items: center;
-    overflow: hidden;
-
-    & > img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      object-fit: contain;
-      margin-right: 10px;
-    }
-  }
-
-  .customer-email {
-    display: flex;
-    position: relative;
-    align-items: center;
-    overflow: hidden;
-
-    p {
-      margin-right: 10px;
-    }
-
-    svg {
-      fill: var(--success-color-green);
     }
   }
 }

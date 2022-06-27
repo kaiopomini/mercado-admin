@@ -1,24 +1,16 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useCallback,
-} from "react";
+import { createContext, useContext, ReactNode } from "react";
 
-import { ApiNotify } from "../components/ApiNotify";
+import { useSnackbar } from "notistack";
 
 export enum NotifyTypesEnum {
   Error = "error",
   Warning = "warning",
   Info = "info",
   Success = "success",
+  Default = "default",
 }
 export interface ApiNotifyContextData {
-  removeNotification: () => void;
   addNotification: (message: string, type: NotifyTypesEnum) => void;
-  notificationMessage: string;
-  severity: NotifyTypesEnum | undefined;
 }
 
 type ApiNotifyProviderProps = {
@@ -30,34 +22,24 @@ const ApiNotifyContext = createContext<ApiNotifyContextData>(
 );
 
 function ApiNotifyProvider({ children }: ApiNotifyProviderProps) {
-  const [notificationMessage, setNotificationMessage] = useState("");
-  const [severity, setSeverity] = useState<NotifyTypesEnum>();
-
-  const removeNotification = () => {
-    setNotificationMessage("");
-  };
+  const { enqueueSnackbar } = useSnackbar();
 
   const addNotification = (message: string, severity?: NotifyTypesEnum) => {
-    setNotificationMessage(message);
-    if (severity) {
-      setSeverity(severity);
-    }
+    enqueueSnackbar(message, {
+      variant: severity ? severity : NotifyTypesEnum.Default,
+      autoHideDuration: 7000,
+      anchorOrigin: { vertical: "top", horizontal: "right" },
+      preventDuplicate: true,
+    });
   };
 
   const contextValue = {
-    removeNotification: useCallback(() => removeNotification(), []),
-    addNotification: useCallback(
-      (message, type) => addNotification(message, type),
-      []
-    ),
-    notificationMessage,
-    severity,
+    addNotification,
   };
 
   return (
     <ApiNotifyContext.Provider value={{ ...contextValue }}>
       {children}
-      <ApiNotify />
     </ApiNotifyContext.Provider>
   );
 }

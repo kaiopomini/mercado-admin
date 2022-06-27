@@ -3,9 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 import "./styles.scss";
 
-import { toCurrency } from "../../utils/numberFormat";
 import { Button } from "@material-ui/core";
-import { getProductList, IProductList } from "../../services/products.service";
+import {
+  getCategoryList,
+  ICategoryList,
+} from "../../services/categories.service";
 import {
   Search,
   Close,
@@ -15,41 +17,28 @@ import {
   ArrowDropDown,
 } from "@material-ui/icons";
 
-import noImage from "../../assets/img/product-no-image.png";
+import noImage from "../../assets/img/category-no-image.png";
 import { Table } from "../../components/Table";
 import { Column, TypesIds } from "../../entities/TableFields";
 
 interface Data {
   actions: ReactNode;
-  product: ReactNode;
-  price: number;
+  category: ReactNode;
   active: string;
-  code: string;
-  quantity: number;
-  inventoryControl: string;
   id: string;
 }
 
-function createData(item: IProductList): Data {
+function createData(item: ICategoryList): Data {
   const setDefaultSrc = (
     event: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
     event.currentTarget.src = noImage;
   };
 
-  const {
-    id,
-    image,
-    name,
-    active,
-    quantity,
-    controlled_inventory,
-    price,
-    gtin_code,
-  } = item;
+  const { id, image, name, active } = item;
 
   const actions = (
-    <div className="product-edit">
+    <div className="category-edit">
       <Link to={"/categorias/" + id}>
         <Edit />
         Editar
@@ -57,11 +46,11 @@ function createData(item: IProductList): Data {
     </div>
   );
 
-  const product = (
-    <div className="product-list-img">
+  const category = (
+    <div className="category-list-img">
       <img
         src={image && image !== "default" ? image : noImage}
-        alt={"imagem produto " + name}
+        alt={"imagem da categoria " + name}
         onError={setDefaultSrc}
       />
       <p>{name}</p>
@@ -70,16 +59,10 @@ function createData(item: IProductList): Data {
 
   const status = active ? "Ativo" : "Inativo";
 
-  const inventoryControl = controlled_inventory ? "Ativo" : "Inativo";
-
   return {
     actions,
-    product,
-    price,
+    category,
     active: status,
-    code: gtin_code,
-    quantity,
-    inventoryControl,
     id,
   };
 }
@@ -104,8 +87,8 @@ export function Categories() {
   async function loadData(clear = false) {
     setIsLoading(true);
     const data = clear
-      ? await getProductList(undefined, undefined, perPage, sort)
-      : await getProductList(search, page, perPage, sort);
+      ? await getCategoryList(undefined, undefined, perPage, sort)
+      : await getCategoryList(search, page, perPage, sort);
 
     if (data) {
       setTotal(data.total);
@@ -187,8 +170,8 @@ export function Categories() {
   ];
 
   return (
-    <div id="productList">
-      <h2>Produtos</h2>
+    <div id="categoryList">
+      <h2>Categorias</h2>
       <div className="action-bar">
         <div className="search-bar">
           <form onSubmit={doSearch} className="search">
@@ -208,7 +191,7 @@ export function Categories() {
           </form>
           <div className="select-filter"></div>
         </div>
-        <div className="new-product">
+        <div className="new-category">
           <Button
             variant="contained"
             onClick={() => navigate("/categorias/novo")}

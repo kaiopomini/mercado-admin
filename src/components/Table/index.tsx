@@ -63,8 +63,9 @@ export function Table({
           {isLoading ? (
             <TableBody>
               <tr>
-                <td colSpan={5} className="loading">
-                  <CircularProgress color="inherit" />
+                <td colSpan={5} className="loading-table">
+                  {" "}
+                  <CircularProgress color="inherit" />{" "}
                 </td>
               </tr>
             </TableBody>

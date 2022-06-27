@@ -7,14 +7,15 @@ import { Delete } from "@material-ui/icons";
 
 import noImage from "../../../assets/img/product-no-image.png";
 import "./styles.scss";
-import { uploadProductImage } from "../../../services/upload.service";
+import { uploadImage } from "../../../services/upload.service";
 
 interface Props {
   setValue: (url: string) => void;
-  imageUrl: any;
+  imageUrl: string;
+  type: "products" | "products-categories";
 }
 
-export const UploadProductsImages = ({ setValue, imageUrl }: Props) => {
+export const UploadImages = ({ setValue, imageUrl, type }: Props) => {
   const [selectPreviewFileUrl, setSelectPreviewFileUrl] = useState("");
   const [progress, setProgress] = useState(0);
   const [currentFile, setCurrentFile] = useState<File>();
@@ -37,7 +38,7 @@ export const UploadProductsImages = ({ setValue, imageUrl }: Props) => {
 
     setProgress(0);
     try {
-      const res = await uploadProductImage(file, (event) => {
+      const res = await uploadImage(file, type, (event) => {
         setProgress(Math.round((90 * event.loaded) / event.total));
       });
       setProgress(100);

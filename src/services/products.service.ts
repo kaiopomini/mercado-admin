@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import axios, { AxiosError } from "axios";
 import { api } from "./api.service";
+import { ICategoryList } from "./categories.service";
 
 export interface IPaginatedResponse<T> {
   payload: Array<T>;
@@ -47,14 +48,29 @@ export interface IProductList {
   created_at: Date;
   updated_at: Date;
   deleted_at: Date | null;
+  categories?: ICategoryList[];
+}
+
+export interface IProductListByCategorySearchData {
+  categoryId: string;
+  filter: string;
+  search?: string;
+  page?: number;
+  perPage?: number;
+  sort?: string;
+}
+
+export interface IProductListSearchData {
+  search?: string;
+  page?: number;
+  perPage?: number;
+  sort?: string;
 }
 
 export async function getProductList(
-  search?: string,
-  page?: number,
-  perPage?: number,
-  sort?: string
+  data: IProductListSearchData
 ): Promise<IPaginatedResponse<IProductList> | null> {
+  const { search, page, perPage, sort } = data;
   const params = {
     search,
     page,
@@ -64,6 +80,28 @@ export async function getProductList(
 
   try {
     const { data } = await api.get("admin/products", { params });
+    return data as IPaginatedResponse<IProductList>;
+  } catch (error) {
+    return null;
+  }
+}
+
+export async function getProductListByCategory(
+  data: IProductListByCategorySearchData
+): Promise<IPaginatedResponse<IProductList> | null> {
+  const { search, page, perPage, sort, categoryId, filter } = data;
+  const params = {
+    search,
+    page,
+    per_page: perPage,
+    sort,
+    filter,
+  };
+
+  try {
+    const { data } = await api.get(`admin/products/bycategory/${categoryId}`, {
+      params,
+    });
     return data as IPaginatedResponse<IProductList>;
   } catch (error) {
     return null;

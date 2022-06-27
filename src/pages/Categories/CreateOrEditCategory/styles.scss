@@ -1,4 +1,4 @@
-#new-product {
+#new-category {
   display: flex;
   flex-direction: column;
   .MuiFormHelperText-root {
@@ -26,7 +26,6 @@
     .main-input-container {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       flex: 1;
       margin-right: 30px;
 
@@ -64,6 +63,7 @@
     flex-direction: column;
     justify-content: space-between;
     flex: 1;
+    margin-top: 16px;
 
     .line-input {
       display: flex;
@@ -84,7 +84,7 @@
           justify-content: flex-end;
           align-items: initial;
           min-width: 244px;
-          & .MuiTypography-root{
+          & .MuiTypography-root {
             padding-top: 8px;
           }
         }

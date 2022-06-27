@@ -104,8 +104,8 @@ export function Products() {
   async function loadData(clear = false) {
     setIsLoading(true);
     const data = clear
-      ? await getProductList(undefined, undefined, perPage, sort)
-      : await getProductList(search, page, perPage, sort);
+      ? await getProductList({ perPage, sort })
+      : await getProductList({ search, page, perPage, sort });
 
     if (data) {
       setTotal(data.total);

@@ -1,64 +1,40 @@
 import {
   Button,
   CircularProgress,
-  FormControl,
   FormControlLabel,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  Select,
   Switch,
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Edit, ArrowBack } from "@material-ui/icons";
+import { ArrowBack } from "@material-ui/icons";
 
-import { CurrencyInput } from "../../../components/CurrencyInput";
-import { UploadProductsImages } from "../../../components/inputs/UploadProductsImages";
-import {
-  createProduct,
-  deleteProduct,
-  getProduct,
-  IProductPost,
-  updateProduct,
-} from "../../../services/products.service";
+import { UploadImages } from "../../../components/inputs/UploadImages";
 
 import "./styles.scss";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { NotifyTypesEnum, useApiNotify } from "../../../hooks/apiNotify";
+import {
+  createCategory,
+  deleteCategory,
+  getCategory,
+  ICategoryPost,
+  updateCategory,
+} from "../../../services/categories.service";
+import { ProductsList } from "./ProductsList";
 export interface IIndexable {
   [key: string]: any;
 }
 
 export function CreateOrEditCategory() {
   const schema = Yup.object().shape({
-    barCode: Yup.string().required("Codigo de barras é obrigatório"),
     name: Yup.string()
       .required("Nome é obrigatório")
       .max(100, "Máximo de 100 caracteres"),
-    price: Yup.number()
-      .typeError("Informe um valor númerico")
-      .positive("O valor não pode ser negativo")
-      .required("Preço é obrigatório"),
-    basePrice: Yup.number()
-      .typeError("Informe um valor númerico")
-      .positive("O valor não pode ser negativo")
-      .required("Preço de custo é obrigatório"),
     description: Yup.string().nullable().max(255, "Máximo de 255 caracteres"),
     active: Yup.boolean().default(false).required("Ativo é obrigatório"),
-    controlledInventory: Yup.boolean()
-      .default(false)
-      .required("Ativo é obrigatório"),
-    quantity: Yup.number()
-      .default(0)
-      .integer("Informe um valor inteiro")
-      .typeError("Informe um valor númerico")
-      .positive("A quantidade não pode ser negativa")
-      .min(0, "A quantidade não pode ser negativa"),
-    quantityType: Yup.string().required("Unidade é obrigatório"),
     image: Yup.string().default("").nullable(),
   });
 
@@ -69,8 +45,6 @@ export function CreateOrEditCategory() {
     reset,
     setValue,
     watch,
-    clearErrors,
-    trigger,
   } = useForm({
     mode: "all",
     resolver: yupResolver(schema),
@@ -78,11 +52,11 @@ export function CreateOrEditCategory() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
-  const [editBarCode, setEditBarCode] = useState(false);
+  const [showProducts, setShowProducts] = useState(false);
   const [clicked, setClicked] = useState("");
-  const [data, setData] = useState<IProductPost>();
-  const [newProductId, setNewProductId] = useState("");
-  const { productId } = useParams();
+  const [data, setData] = useState<ICategoryPost>();
+  const [categoryId, setCategoryId] = useState("");
+  const params = useParams();
 
   const navigate = useNavigate();
   const { addNotification } = useApiNotify();
@@ -91,29 +65,26 @@ export function CreateOrEditCategory() {
     setIsLoading(true);
     setClicked("save");
 
-    if (editMode && (productId || newProductId)) {
-      console.log(newProductId);
-      const id = newProductId ? newProductId : productId;
-      const response = await updateProduct({ ...data, id });
+    if (editMode && categoryId) {
+      const response = await updateCategory({ ...data, categoryId });
       if (response?.success) {
         addNotification(response.message, NotifyTypesEnum.Success);
       } else {
         addNotification(
           response?.message ||
-            "Não foi possível salvar as alterações feitas no produto.",
+            "Não foi possível salvar as alterações feitas na categoria.",
           NotifyTypesEnum.Error
         );
       }
     } else {
-      const response = await createProduct(data);
+      const response = await createCategory(data);
       if (response?.success) {
         addNotification(response.message, NotifyTypesEnum.Success);
-        response.payload?.id && setNewProductId(response.payload.id);
+        response.payload?.id && setCategoryId(response.payload.id);
         setEditMode(true);
-        // navigate("/produtos");
       } else {
         addNotification(
-          response?.message || "Não foi possível criar o produto.",
+          response?.message || "Não foi possível criar a categoria.",
           NotifyTypesEnum.Error
         );
       }
@@ -125,15 +96,15 @@ export function CreateOrEditCategory() {
   async function handleDelete() {
     setClicked("delete");
     setIsLoading(true);
-    if (productId) {
-      const response = await deleteProduct(productId);
+    if (categoryId) {
+      const response = await deleteCategory(categoryId);
 
       if (response?.success) {
         addNotification(response.message, NotifyTypesEnum.Success);
-        navigate("/produtos");
+        navigate("/categorias");
       } else {
         addNotification(
-          response?.message || "Não foi possível excluir o produto.",
+          response?.message || "Não foi possível excluir a categoria.",
           NotifyTypesEnum.Error
         );
       }
@@ -145,9 +116,14 @@ export function CreateOrEditCategory() {
     navigate(-1);
   }
 
+  function handleShowProducts() {
+    setShowProducts((value) => !value);
+  }
+
   useEffect(() => {
-    if (productId) {
-      loadData();
+    if (params.categoryId) {
+      setCategoryId(params.categoryId);
+      loadData(params.categoryId);
     } else {
       setIsLoading(false);
     }
@@ -158,54 +134,27 @@ export function CreateOrEditCategory() {
     setValue("image", url);
   }
 
-  async function loadData() {
+  async function loadData(categoryId: string) {
     setIsLoading(true);
-    if (productId) {
-      const data = await getProduct(productId);
-      const product = data?.payload;
-      if (product) {
-        const {
-          active,
-          description,
-          gtin_code,
-          id,
-          name,
-          price,
-          base_price,
-          image,
-          controlled_inventory,
-          quantity,
-          quantity_type,
-        } = product;
-        const data = {
-          id,
-          description,
-          barCode: gtin_code,
-          name,
-          price,
-          active,
-          basePrice: base_price,
-          image,
-          controlledInventory: controlled_inventory,
-          quantity,
-          quantityType: quantity_type,
-        };
 
-        setData(data);
+    const data = await getCategory(categoryId);
+    const category = data?.payload;
+    if (category) {
+      setData(category);
 
-        Object.keys(data).forEach((field) => {
-          setValue(field, (data as IIndexable)[field]);
-        });
+      Object.keys(category).forEach((field) => {
+        setValue(field, (category as IIndexable)[field]);
+      });
 
-        setEditMode(true);
-      }
+      setEditMode(true);
     }
+
     setIsLoading(false);
   }
 
   return (
-    <div id="new-product">
-      <h2>{editMode && data?.name ? data.name : "Novo Produto"}</h2>
+    <div id="new-category">
+      <h2>{editMode && data?.name ? data.name : "Nova Categoria"}</h2>
       <div className="form-container">
         {isLoading && !clicked ? (
           <div className="loading">
@@ -216,37 +165,6 @@ export function CreateOrEditCategory() {
           <form onSubmit={(e) => e.preventDefault()} onReset={reset}>
             <div className="top-content">
               <div className="main-input-container">
-                <div className="line-input">
-                  <Controller
-                    name="barCode"
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        size="small"
-                        label="Código de barras"
-                        fullWidth
-                        autoFocus={!editMode}
-                        autoComplete="off"
-                        error={!!errors.barCode}
-                        helperText={errors.barCode?.message || " "}
-                        disabled={editMode && !editBarCode}
-                        {...field}
-                      />
-                    )}
-                  />
-
-                  {editMode && !editBarCode && (
-                    <button
-                      className={editBarCode ? "edit red" : "edit"}
-                      onClick={() => setEditBarCode(!editBarCode)}
-                      type="button"
-                    >
-                      {" "}
-                      <Edit />{" "}
-                    </button>
-                  )}
-                </div>
-
                 <div className="line-input">
                   <Controller
                     name="name"
@@ -262,42 +180,6 @@ export function CreateOrEditCategory() {
                         {...field}
                       />
                     )}
-                  />
-                </div>
-
-                <div className="line-input">
-                  <CurrencyInput
-                    label="Preço"
-                    id="price"
-                    autoComplete="off"
-                    fullWidth={true}
-                    onChangeInput={(value) => {
-                      setValue("price", value ? parseFloat(value) : undefined);
-                    }}
-                    currentValue={watch("price")}
-                    error={!!errors.price}
-                    helperText={errors.price?.message || " "}
-                    onFocus={() => clearErrors("price")}
-                    onBlur={() => trigger("price")}
-                  />
-                </div>
-                <div className="line-input">
-                  <CurrencyInput
-                    label="Preço de custo"
-                    id="basePrice"
-                    autoComplete="off"
-                    fullWidth={true}
-                    onChangeInput={(value) => {
-                      setValue(
-                        "basePrice",
-                        value ? parseFloat(value) : undefined
-                      );
-                    }}
-                    currentValue={watch("basePrice")}
-                    error={!!errors.basePrice}
-                    helperText={errors.basePrice?.message || " "}
-                    onFocus={() => clearErrors("basePrice")}
-                    onBlur={() => trigger("basePrice")}
                   />
                 </div>
 
@@ -321,101 +203,54 @@ export function CreateOrEditCategory() {
                     )}
                   />
                 </div>
+                <div className="line-input">
+                  <FormControlLabel
+                    control={
+                      <Controller
+                        name="active"
+                        control={control}
+                        render={({ field }) => (
+                          <Switch
+                            checked={field.value}
+                            {...field}
+                            inputProps={{ "aria-label": "controlled" }}
+                          />
+                        )}
+                      />
+                    }
+                    label="Categoria ativa"
+                  />
+
+                  {editMode ? (
+                    <div>
+                      <Button
+                        variant="contained"
+                        disabled={isLoading}
+                        onClick={handleShowProducts}
+                      >
+                        {showProducts ? "Esconder Produtos" : "Ver Produtos"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                </div>
               </div>
               <div className="upload-image-container">
-                <UploadProductsImages
+                <UploadImages
                   setValue={setImageUrl}
                   imageUrl={watch("image")}
+                  type={"products-categories"}
                 />
               </div>
             </div>
 
             <div className="bottom-content">
-              <div className="line-input quantity-container">
-                <Controller
-                  name="quantity"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      size="small"
-                      label="Quantidade"
-                      type={"number"}
-                      autoComplete="off"
-                      error={!!errors.quantity}
-                      helperText={errors.quantity?.message || " "}
-                      {...field}
-                    />
-                  )}
-                />
-                <FormControl
-                  size="small"
-                  error={errors.quantityType}
-                  sx={{ m: 0, minWidth: 120 }}
-                >
-                  <InputLabel id="select-input"> Unidade</InputLabel>
-                  <Controller
-                    name="quantityType"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <>
-                        <Select
-                          labelId="select-input"
-                          size="small"
-                          value={field.value}
-                          label="Unidade"
-                          error={!!errors.quantityType}
-                          onChange={(e) => setValue(field.name, e.target.value)}
-                        >
-                          <MenuItem value={undefined}>
-                            <em>Selecione</em>
-                          </MenuItem>
-                          <MenuItem value={"kg"}>Kilos (Kg)</MenuItem>
-                          <MenuItem value={"un"}>Unidade (Un)</MenuItem>
-                        </Select>
-                        <FormHelperText>
-                          {errors.quantityType?.message || " "}
-                        </FormHelperText>
-                      </>
-                    )}
-                  />
-                </FormControl>
-
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="controlledInventory"
-                      control={control}
-                      render={({ field }) => (
-                        <Switch
-                          checked={field.value}
-                          {...field}
-                          inputProps={{ "aria-label": "controlled" }}
-                        />
-                      )}
-                    />
-                  }
-                  label="Controle de estoque"
-                />
-              </div>
-
-              <div className="line-input">
-                <FormControlLabel
-                  control={
-                    <Controller
-                      name="active"
-                      control={control}
-                      render={({ field }) => (
-                        <Switch
-                          checked={field.value}
-                          {...field}
-                          inputProps={{ "aria-label": "controlled" }}
-                        />
-                      )}
-                    />
-                  }
-                  label="Produto ativo"
-                />
-              </div>
+              {categoryId && showProducts ? (
+                <ProductsList categoryId={categoryId} />
+              ) : (
+                <></>
+              )}
             </div>
             <div className="actions-container">
               <Button
@@ -426,7 +261,7 @@ export function CreateOrEditCategory() {
                 voltar
               </Button>
               <div>
-                {editMode && (
+                {editMode ? (
                   <Button
                     variant="outlined"
                     onClick={handleDelete}
@@ -440,6 +275,8 @@ export function CreateOrEditCategory() {
                       "excluir"
                     )}
                   </Button>
+                ) : (
+                  <></>
                 )}
                 <Button
                   variant="contained"

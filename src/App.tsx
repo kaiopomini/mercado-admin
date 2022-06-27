@@ -2,6 +2,7 @@ import { BrowserRouter, useNavigate } from "react-router-dom";
 
 import { AuthProvider } from "./hooks/auth";
 import { ApiNotifyProvider, useApiNotify } from "./hooks/apiNotify";
+import { SnackbarProvider } from "notistack";
 
 import { AppRoutes } from "./components/AppRoutes";
 
@@ -15,15 +16,18 @@ function AxiosNavigateSetup() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ApiNotifyProvider>
-          <AppRoutes />
-          {/* <ApiNotify /> */}
-          <AxiosNavigateSetup />
-        </ApiNotifyProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <SnackbarProvider>
+      <ApiNotifyProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+            {/* <ApiNotify /> */}
+
+            <AxiosNavigateSetup />
+          </BrowserRouter>
+        </AuthProvider>
+      </ApiNotifyProvider>
+    </SnackbarProvider>
   );
 }
 

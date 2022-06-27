@@ -80,7 +80,7 @@ function AuthProvider({ children }: AuthProviderProps) {
   }
 
   async function signOut() {
-    api.defaults.headers.common.Authoization = "";
+    api.defaults.headers.common.Authorization = "";
     logout();
   }
 
