@@ -231,7 +231,6 @@ export function ProductsList({ categoryId }: Props) {
         NotifyTypesEnum.Error
       );
     }
-    console.log(res);
     loadData();
   };
 
@@ -252,7 +251,6 @@ export function ProductsList({ categoryId }: Props) {
         NotifyTypesEnum.Error
       );
     }
-    console.log(res);
     loadData();
   };
 

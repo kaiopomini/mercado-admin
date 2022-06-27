@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Button,
   Checkbox,
   CircularProgress,
@@ -6,13 +7,12 @@ import {
   FormControlLabel,
   FormHelperText,
   InputLabel,
-  ListItemText,
   MenuItem,
   Select,
   Switch,
   TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Edit, ArrowBack } from "@material-ui/icons";
 
@@ -35,9 +35,14 @@ import {
   getInputLabelsCategoryList,
   IInputLablesCategoryList,
 } from "../../../services/categories.service";
+
+import { CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 export interface IIndexable {
   [key: string]: any;
 }
+
+const icon = <CheckBoxOutlineBlank fontSize="small" />;
+const checkedIcon = <CheckBox fontSize="small" />;
 
 export function CreateOrEditProduct() {
   const schema = Yup.object().shape({
@@ -96,6 +101,12 @@ export function CreateOrEditProduct() {
     IInputLablesCategoryList[]
   >([]);
 
+  const categoryListRef = useRef<IInputLablesCategoryList[]>([]);
+  const categoryListMemo = useMemo(() => {
+    return [...categoryList];
+  }, [categoryList]);
+  categoryListRef.current = categoryListMemo;
+
   const { productId } = useParams();
 
   const navigate = useNavigate();
@@ -106,7 +117,6 @@ export function CreateOrEditProduct() {
     setClicked("save");
 
     if (editMode && (productId || newProductId)) {
-      console.log(newProductId);
       const id = newProductId ? newProductId : productId;
       const response = await updateProduct({ ...data, id });
       if (response?.success) {
@@ -160,97 +170,93 @@ export function CreateOrEditProduct() {
   }
 
   useEffect(() => {
-    if (productId) {
-      loadData();
-    } else {
-      setIsLoading(false);
-    }
+    loadData();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    console.log("Category list", categoryList);
-    console.log("selectedCategoryList", selectedCategoryList);
-    console.log("watch", watch("categories"));
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [categoryList, selectedCategoryList]);
 
   function setImageUrl(url: string): void {
     setValue("image", url);
   }
 
-  async function loadData() {
-    setIsLoading(true);
-    if (productId) {
-      const dataProducts = await getProduct(productId);
-      const dataCategories = (await getInputLabelsCategoryList())?.payload;
-      if (dataCategories && dataCategories.length > 0) {
-        setCategoryList(dataCategories);
-      }
+  const loadDataProduct = useCallback(async () => {
+    if (!productId) return;
+    const dataProducts = await getProduct(productId);
 
-      const product = dataProducts?.payload;
-      if (product) {
-        const {
-          active,
-          description,
-          gtin_code,
-          id,
-          name,
-          price,
-          base_price,
-          image,
-          controlled_inventory,
-          quantity,
-          quantity_type,
-          categories,
-        } = product;
-        const categoriesIds = categories?.map((category) => category.id);
+    const product = dataProducts?.payload;
+    if (product) {
+      const {
+        active,
+        description,
+        gtin_code,
+        id,
+        name,
+        price,
+        base_price,
+        image,
+        controlled_inventory,
+        quantity,
+        quantity_type,
+        categories,
+      } = product;
+      const categoriesIds = categories?.map((category) => category.id);
 
-        if (categories && categories.length > 0) {
-          categories.forEach((category) => {
-            const categoryToAdd = dataCategories?.find(
-              (categoryListItem) => categoryListItem.id === category.id
-            );
-            if (categoryToAdd) {
-              setSelectedCategoryList((value) => [...value, categoryToAdd]);
-            }
-          });
-        }
-
-        const data = {
-          id,
-          description,
-          barCode: gtin_code,
-          name,
-          price,
-          active,
-          basePrice: base_price,
-          image,
-          controlledInventory: controlled_inventory,
-          quantity,
-          quantityType: quantity_type,
-          categories: categoriesIds,
-        };
-
-        setData(data);
-
-        Object.keys(data).forEach((field) => {
-          setValue(field, (data as IIndexable)[field]);
+      if (categories && categories.length > 0) {
+        categories.forEach((category) => {
+          const categoryToAdd = categoryListRef.current.find(
+            (categoryListItem) => categoryListItem.id === category.id
+          );
+          if (categoryToAdd) {
+            setSelectedCategoryList((value) => [...value, categoryToAdd]);
+          }
         });
-
-        setEditMode(true);
       }
+
+      const data = {
+        id,
+        description,
+        barCode: gtin_code,
+        name,
+        price,
+        active,
+        basePrice: base_price,
+        image,
+        controlledInventory: controlled_inventory,
+        quantity,
+        quantityType: quantity_type,
+        categories: categoriesIds,
+      };
+
+      setData(data);
+
+      Object.keys(data).forEach((field) => {
+        setValue(field, (data as IIndexable)[field]);
+      });
+
+      setEditMode(true);
     }
+  }, [productId, setValue]);
+
+  const loadDataFilters = useCallback(async () => {
+    const dataCategories = (await getInputLabelsCategoryList())?.payload;
+    if (dataCategories && dataCategories.length > 0) {
+      setCategoryList(dataCategories);
+    }
+  }, []);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    await loadDataFilters();
+    await loadDataProduct();
     setIsLoading(false);
-  }
+  };
+
   const handleChangeCategory = (
     fieldName: string,
     value: IInputLablesCategoryList[]
   ) => {
     const arrayValuesIds = value.map((item) => item.id);
     setValue(fieldName, arrayValuesIds);
-    console.log("selectedList", selectedCategoryList);
     setSelectedCategoryList(value);
   };
 
@@ -449,54 +455,49 @@ export function CreateOrEditProduct() {
                   label="Controle de estoque"
                 />
               </div>
+
               <div className="line-input category-container">
                 <FormControl
                   size="small"
                   error={errors.categories}
                   sx={{ m: 0, minWidth: 120 }}
                 >
-                  <InputLabel id="select-input">Categorias</InputLabel>
                   <Controller
                     name="categories"
                     control={control}
                     render={({ field }) => (
                       <>
-                        <Select
-                          labelId="select-input"
-                          size="small"
-                          value={selectedCategoryList}
-                          label="Categorias"
-                          error={!!errors.categories}
+                        <Autocomplete
                           multiple
-                          onChange={(e) => {
-                            console.log("target.value", e.target.value);
-                            // @ts-ignore
-                            handleChangeCategory(field.name, e.target.value);
+                          id="tags-standard"
+                          size="small"
+                          options={categoryListRef.current}
+                          getOptionLabel={(option) => option.name}
+                          value={selectedCategoryList}
+                          disableCloseOnSelect
+                          onChange={(e, newValue) => {
+                            handleChangeCategory(field.name, newValue);
                           }}
-                          renderValue={(selected) =>
-                            selected
-                              .map(
-                                (item: any) =>
-                                  categoryList?.find(
-                                    (categoryItem) =>
-                                      categoryItem.id === item.id
-                                  )?.name
-                              )
-                              .join(", ")
-                          }
-                        >
-                          {categoryList.map((category) => (
-                            // @ts-ignore
-                            <MenuItem key={category.id} value={category}>
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
                               <Checkbox
-                                checked={
-                                  selectedCategoryList.indexOf(category) > -1
-                                }
+                                icon={icon}
+                                checkedIcon={checkedIcon}
+                                style={{ marginRight: 8 }}
+                                checked={selected}
                               />
-                              <ListItemText primary={category.name} />
-                            </MenuItem>
-                          ))}
-                        </Select>
+                              {option.name}
+                            </li>
+                          )}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              variant="outlined"
+                              label="Categorias"
+                              // placeholder="Categorias"
+                            />
+                          )}
+                        />
                         <FormHelperText>
                           {errors.categories?.message || " "}
                         </FormHelperText>

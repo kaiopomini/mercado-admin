@@ -25,6 +25,7 @@ export interface IProductPost {
   quantity?: number;
   image?: string;
   quantityType: string;
+  categories: string[];
 }
 export interface IResponse<T> {
   payload?: T | null;
@@ -48,7 +49,7 @@ export interface IProductList {
   created_at: Date;
   updated_at: Date;
   deleted_at: Date | null;
-  categories?: ICategoryList[];
+  categories: ICategoryList[];
 }
 
 export interface IProductListByCategorySearchData {
@@ -130,6 +131,7 @@ export async function createProduct({
   quantity,
   image,
   quantityType,
+  categories,
 }: IProductPost): Promise<IResponse<IProductList> | null> {
   const postData = {
     gtin_code: barCode,
@@ -142,6 +144,7 @@ export async function createProduct({
     quantity: quantity,
     image: image,
     quantity_type: quantityType,
+    categories: categories,
   };
 
   try {
@@ -168,6 +171,7 @@ export async function updateProduct({
   quantity,
   image,
   quantityType,
+  categories,
 }: IProductPost): Promise<IResponse<IProductList> | null> {
   const postData = {
     gtin_code: barCode,
@@ -180,6 +184,7 @@ export async function updateProduct({
     quantity: quantity,
     image: image,
     quantity_type: quantityType,
+    categories: categories,
   };
 
   try {
