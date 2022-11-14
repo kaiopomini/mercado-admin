@@ -1,0 +1,18 @@
+#default-action-bar {
+  padding: 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .right-button {
+    flex: 4;
+    display: flex;
+    justify-content: flex-end;
+
+    & > button {
+      box-shadow: var(--box-shadow);
+      border-radius: var(--border-radius);
+      height: var(--button-height);
+    }
+  }
+}

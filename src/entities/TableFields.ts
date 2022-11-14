@@ -22,7 +22,8 @@ export type TypesIds = {
 export interface Column<T> {
   id: T;
   label: string;
-  minWidth?: number;
+  minWidth?: number | string;
+  width?: number | string;
   align?: "right";
   format?: (value: any) => string;
   action?: () => void;

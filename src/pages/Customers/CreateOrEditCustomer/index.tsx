@@ -251,7 +251,7 @@ export function CreateOrEditCustomers() {
                         size="small"
                         label="Nome"
                         fullWidth
-                        autoFocus={!editMode}
+                        autoFocus={editMode}
                         autoComplete="off"
                         error={!!fieldState.error}
                         helperText={fieldState.error?.message || " "}

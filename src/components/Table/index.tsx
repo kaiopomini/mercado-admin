@@ -48,7 +48,7 @@ export function Table({
                 <TableCell
                   key={column.id}
                   align={column.align}
-                  style={{ minWidth: column.minWidth }}
+                  style={{ minWidth: column.minWidth, width: column.width }}
                   onClick={column.action}
                   sortDirection={"asc"}
                 >
@@ -85,7 +85,14 @@ export function Table({
                         {columns.map((column) => {
                           const value = row[column.id];
                           return (
-                            <TableCell key={column.id} align={column.align}>
+                            <TableCell
+                              key={column.id}
+                              align={column.align}
+                              style={{
+                                minWidth: column.minWidth,
+                                width: column.width,
+                              }}
+                            >
                               {column.format ? column.format(value) : value}
                             </TableCell>
                           );

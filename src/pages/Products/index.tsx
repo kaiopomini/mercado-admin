@@ -6,18 +6,13 @@ import "./styles.scss";
 import { toCurrency } from "../../utils/numberFormat";
 import { Button } from "@material-ui/core";
 import { getProductList, IProductList } from "../../services/products.service";
-import {
-  Search,
-  Close,
-  Edit,
-  Add,
-  ArrowDropUp,
-  ArrowDropDown,
-} from "@material-ui/icons";
+import { Edit, Add, ArrowDropUp, ArrowDropDown } from "@material-ui/icons";
 
 import noImage from "../../assets/img/product-no-image.png";
 import { Table } from "../../components/Table";
 import { Column, TypesIds } from "../../entities/TableFields";
+import { ActionBar60x40 } from "../../components/ActionBar60x40";
+import { SearchBar } from "../../components/SearchBar";
 
 interface Data {
   actions: ReactNode;
@@ -176,6 +171,7 @@ export function Products() {
       id: "product",
       label: "Produto",
       minWidth: 350,
+      width: "100%",
       icon: sort === "asc" ? <ArrowDropDown /> : <ArrowDropUp />,
       action: changeSort,
     },
@@ -211,26 +207,16 @@ export function Products() {
   return (
     <div id="productList">
       <h2>Produtos</h2>
-      <div className="action-bar">
-        <div className="search-bar">
-          <form onSubmit={doSearch} className="search">
-            <input
-              type="text"
-              autoFocus
-              placeholder="Buscar..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <button className="clear-btn" type="button" onClick={clearSearch}>
-              <Close />
-            </button>
-            <button className="search-btn" type="submit">
-              <Search />
-            </button>
-          </form>
-          <div className="select-filter"></div>
-        </div>
-        <div className="new-product">
+      <ActionBar60x40
+        SearchBar={
+          <SearchBar
+            clearSearch={clearSearch}
+            search={search}
+            doSearch={doSearch}
+            setSearch={setSearch}
+          />
+        }
+        Button={
           <Button
             variant="contained"
             onClick={() => navigate("/produtos/novo")}
@@ -238,8 +224,8 @@ export function Products() {
             <Add />
             Cadastrar
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <Table
         columns={columns}

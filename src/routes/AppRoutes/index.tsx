@@ -4,11 +4,13 @@ import { Dashboard } from "../../pages/Dashboard";
 import { SignIn } from "../../pages/SignIn";
 import { Products } from "../../pages/Products";
 import { CreateOrEditProduct } from "../../pages/Products/CreateOrEditProduct";
-import { Layout } from "../Layout";
-import { RequireAuth } from "../RequireAuth";
+import { Layout } from "../../components/Layout";
+import { RequireAuth } from "../../components/RequireAuth";
 import { CreateOrEditCustomers } from "../../pages/Customers/CreateOrEditCustomer";
 import { Categories } from "../../pages/Categories";
 import { CreateOrEditCategory } from "../../pages/Categories/CreateOrEditCategory";
+import { Highlights } from "../../pages/Highlights";
+import { CreateOrEditHighlight } from "../../pages/Highlights/CreateOrEditHighlight";
 
 export function AppRoutes() {
   return (
@@ -109,6 +111,35 @@ export function AppRoutes() {
               </RequireAuth>
             }
           />
+        </Route>
+
+        <Route path="app">
+          <Route path="destaques">
+            <Route
+              index
+              element={
+                <RequireAuth roles={["admin"]}>
+                  <Highlights />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path=":highlightId"
+              element={
+                <RequireAuth roles={["admin"]}>
+                  <CreateOrEditHighlight />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="novo"
+              element={
+                <RequireAuth roles={["admin"]}>
+                  <CreateOrEditHighlight />
+                </RequireAuth>
+              }
+            />
+          </Route>
         </Route>
 
         <Route

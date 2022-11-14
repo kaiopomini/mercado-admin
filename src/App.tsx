@@ -4,7 +4,7 @@ import { AuthProvider } from "./hooks/auth";
 import { ApiNotifyProvider, useApiNotify } from "./hooks/apiNotify";
 import { SnackbarProvider } from "notistack";
 
-import { AppRoutes } from "./components/AppRoutes";
+import { AppRoutes } from "./routes/AppRoutes";
 
 import { customIntercept } from "./services/api.service";
 

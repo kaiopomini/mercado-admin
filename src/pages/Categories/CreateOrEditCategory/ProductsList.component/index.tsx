@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import "./styles.scss";
@@ -10,8 +10,6 @@ import {
   IProductList,
 } from "../../../../services/products.service";
 import {
-  Search,
-  Close,
   Edit,
   Remove,
   Add,
@@ -32,6 +30,7 @@ import {
   addProductsToCategory,
   removeProductsFromCategory,
 } from "../../../../services/categories.service";
+import { SearchBar } from "../../../../components/SearchBar";
 
 interface Data {
   actions: ReactNode;
@@ -188,7 +187,8 @@ export function ProductsList({ categoryId }: Props) {
     setPage(1);
   };
 
-  const doSearch = () => {
+  const doSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setHadSearch(true);
     if (page !== 1) {
       setPage(1);
@@ -255,24 +255,25 @@ export function ProductsList({ categoryId }: Props) {
   };
 
   const columns: Column<TypesIds["products"]>[] = [
-    { id: "actions", label: "Ações", minWidth: 100 },
+    { id: "actions", label: "Ações", minWidth: 210 },
     {
       id: "product",
       label: "Produto",
-      minWidth: 350,
+      minWidth: 300,
+      width: "100%",
       icon: sort === "asc" ? <ArrowDropDown /> : <ArrowDropUp />,
       action: changeSort,
     },
     {
       id: "price",
       label: "Preço",
-      minWidth: 60,
+      minWidth: 100,
       format: (value: number) => toCurrency(value),
     },
     {
       id: "active",
       label: "Status",
-      minWidth: 60,
+      minWidth: 70,
     },
     {
       id: "inventoryControl",
@@ -295,26 +296,15 @@ export function ProductsList({ categoryId }: Props) {
   return (
     <div id="categoryProductList">
       <h2>Produtos</h2>
+
       <div className="action-bar">
-        <div className="search-bar">
-          <form className="search">
-            <input
-              type="text"
-              autoFocus
-              placeholder="Buscar..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <button className="clear-btn" type="button" onClick={clearSearch}>
-              <Close />
-            </button>
-            <button className="search-btn" type="button" onClick={doSearch}>
-              <Search />
-            </button>
-          </form>
-          <div className="select-filter"></div>
-        </div>
-        <div className="new-product">
+        <SearchBar
+          clearSearch={clearSearch}
+          search={search}
+          doSearch={doSearch}
+          setSearch={setSearch}
+        />
+        <div>
           <FormControl>
             <RadioGroup
               row

@@ -23,12 +23,12 @@ import {
   ICategoryPost,
   updateCategory,
 } from "../../../services/categories.service";
-import { ProductsList } from "./ProductsList.component";
+import { HighlightsList } from "./HighlightsList";
 export interface IIndexable {
   [key: string]: any;
 }
 
-export function CreateOrEditCategory() {
+export function CreateOrEditHighlight() {
   const schema = Yup.object().shape({
     name: Yup.string()
       .required("Nome é obrigatório")
@@ -42,6 +42,7 @@ export function CreateOrEditCategory() {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
     setValue,
     watch,
   } = useForm({
@@ -161,7 +162,7 @@ export function CreateOrEditCategory() {
             <CircularProgress />{" "}
           </div>
         ) : (
-          <>
+          <form onSubmit={(e) => e.preventDefault()} onReset={reset}>
             <div className="top-content">
               <div className="main-input-container">
                 <div className="line-input">
@@ -173,7 +174,6 @@ export function CreateOrEditCategory() {
                         size="small"
                         label="Nome"
                         fullWidth
-                        autoFocus
                         autoComplete="off"
                         error={!!errors.name}
                         helperText={errors.name?.message || " "}
@@ -247,7 +247,7 @@ export function CreateOrEditCategory() {
 
             <div className="bottom-content">
               {categoryId && showProducts ? (
-                <ProductsList categoryId={categoryId} />
+                <HighlightsList categoryId={categoryId} />
               ) : (
                 <></>
               )}
@@ -291,7 +291,7 @@ export function CreateOrEditCategory() {
                 </Button>
               </div>
             </div>
-          </>
+          </form>
         )}
       </div>
     </div>

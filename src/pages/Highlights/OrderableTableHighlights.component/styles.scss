@@ -1,8 +1,8 @@
-#table {
-  width: 100%;
+#orderableTableHighlights {
+  min-width: 100%;
 
   .paper-table {
-    height: 500px;
+    height: 100%;
     position: relative;
 
     .loading-table {

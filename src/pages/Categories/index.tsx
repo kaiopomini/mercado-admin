@@ -8,18 +8,13 @@ import {
   getCategoryList,
   ICategoryList,
 } from "../../services/categories.service";
-import {
-  Search,
-  Close,
-  Edit,
-  Add,
-  ArrowDropUp,
-  ArrowDropDown,
-} from "@material-ui/icons";
+import { Edit, Add, ArrowDropUp, ArrowDropDown } from "@material-ui/icons";
 
 import noImage from "../../assets/img/category-no-image.png";
 import { Table } from "../../components/Table";
 import { Column, TypesIds } from "../../entities/TableFields";
+import { SearchBar } from "../../components/SearchBar";
+import { ActionBar60x40 } from "../../components/ActionBar60x40";
 
 interface Data {
   actions: ReactNode;
@@ -159,6 +154,7 @@ export function Categories() {
       id: "category",
       label: "Categoria",
       minWidth: 350,
+      width: "100%",
       icon: sort === "asc" ? <ArrowDropDown /> : <ArrowDropUp />,
       action: changeSort,
     },
@@ -172,26 +168,16 @@ export function Categories() {
   return (
     <div id="categoryList">
       <h2>Categorias</h2>
-      <div className="action-bar">
-        <div className="search-bar">
-          <form onSubmit={doSearch} className="search">
-            <input
-              type="text"
-              autoFocus
-              placeholder="Buscar..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <button className="clear-btn" type="button" onClick={clearSearch}>
-              <Close />
-            </button>
-            <button className="search-btn" type="submit">
-              <Search />
-            </button>
-          </form>
-          <div className="select-filter"></div>
-        </div>
-        <div className="new-category">
+      <ActionBar60x40
+        SearchBar={
+          <SearchBar
+            clearSearch={clearSearch}
+            search={search}
+            doSearch={doSearch}
+            setSearch={setSearch}
+          />
+        }
+        Button={
           <Button
             variant="contained"
             onClick={() => navigate("/categorias/novo")}
@@ -199,8 +185,8 @@ export function Categories() {
             <Add />
             Cadastrar
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <Table
         columns={columns}
